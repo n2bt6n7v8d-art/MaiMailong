@@ -9,46 +9,22 @@
   html,body{width:100%;height:100%;overflow:hidden;background:#05080f;color:#dbe4f0;
     font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
 
-  .game {
-    display: grid;
-    grid-template-columns: 180px 1fr 180px;
-    gap: 8px;
-    width: 100vw;
-    height: 100vh;
-    padding: 8px;
-    box-sizing: border-box;
-    overflow: hidden;
-  }
+  .game{display:grid;grid-template-columns:180px 1fr 180px;gap:8px;width:100vw;height:100vh;
+    padding:8px;box-sizing:border-box;overflow:hidden}
+  .panel{border-radius:10px;padding:10px;font-size:12px;border:1px solid;backdrop-filter:blur(4px);
+    overflow-y:auto;box-sizing:border-box;min-height:0}
+  .stage{min-width:0;min-height:0;display:flex;flex-direction:column;gap:8px}
 
-  .panel {
-    border-radius: 10px; padding: 10px; font-size: 12px; border: 1px solid;
-    backdrop-filter: blur(4px); overflow-y: auto; box-sizing: border-box;
-    min-height: 0;
-  }
-
-  .stage {
-    min-width: 0; min-height: 0;
-    display: flex; flex-direction: column; gap: 8px;
-  }
-
-  @media screen and (max-width: 768px) {
-    .game {
-      grid-template-columns: 1fr;
-      grid-template-rows: auto 1fr auto;
-      overflow-y: auto;
-    }
-    .panel {
-      width: 100%; max-height: 110px;
-      display: flex; flex-direction: row;
-      overflow-x: auto; overflow-y: hidden;
-      gap: 10px; padding: 6px 10px;
-    }
-    .panel h2 { display: none; }
-    .panel .sect { margin: 0; min-width: 130px; }
-    .panel .sect h3 { font-size: 10px; margin-bottom: 3px; }
-    .panel ul li { padding: 2px 5px; font-size: 10px; }
-    .panel .stat { font-size: 11px; padding: 1px 0; }
-    .stage { height: 70vh; flex: 1 1 auto; }
+  @media screen and (max-width:768px){
+    .game{grid-template-columns:1fr;grid-template-rows:auto 1fr auto;overflow-y:auto}
+    .panel{width:100%;max-height:110px;display:flex;flex-direction:row;
+      overflow-x:auto;overflow-y:hidden;gap:10px;padding:6px 10px}
+    .panel h2{display:none}
+    .panel .sect{margin:0;min-width:130px}
+    .panel .sect h3{font-size:10px;margin-bottom:3px}
+    .panel ul li{padding:2px 5px;font-size:10px}
+    .panel .stat{font-size:11px;padding:1px 0}
+    .stage{height:70vh;flex:1 1 auto}
   }
 
   .panel.nato{background:linear-gradient(180deg,#0d1c3a,#08101f);border-color:#274a82;box-shadow:0 0 24px rgba(30,80,200,.25)}
@@ -259,6 +235,9 @@
 </div>
 
 <script>
+/* =========================================================
+   ★★★ 重新绘制的德国各州（无重叠，更像德国） ★★★
+   ========================================================= */
 const STATE_AREA = {
   '石勒苏益格-荷尔斯泰因':15800,'汉堡':755,'不来梅':419,'下萨克森':47400,
   '北莱茵-威斯特法伦':34100,'黑森':21100,'莱茵兰-普法尔茨':19900,
@@ -268,22 +247,29 @@ const STATE_AREA = {
 };
 
 const STATE_POLYGONS = {
-  '石勒苏益格-荷尔斯泰因':[[.28,.04],[.38,.02],[.46,.06],[.44,.16],[.36,.20],[.28,.16],[.24,.10]],
-  '汉堡':[[.34,.20],[.38,.18],[.41,.21],[.38,.24],[.34,.23]],
-  '不来梅':[[.28,.24],[.32,.22],[.34,.25],[.30,.27],[.27,.26]],
-  '下萨克森':[[.24,.10],[.36,.20],[.34,.25],[.42,.30],[.40,.42],[.30,.46],[.18,.40],[.14,.26],[.20,.16]],
-  '北莱茵-威斯特法伦':[[.06,.26],[.18,.22],[.26,.30],[.24,.42],[.14,.48],[.04,.42]],
-  '黑森':[[.24,.42],[.34,.40],[.36,.52],[.26,.56],[.18,.50]],
-  '莱茵兰-普法尔茨':[[.04,.42],[.14,.48],[.16,.58],[.08,.62],[.02,.52]],
-  '巴登-符腾堡':[[.14,.48],[.24,.44],[.30,.54],[.26,.68],[.14,.72],[.10,.60]],
-  '巴伐利亚':[[.30,.54],[.40,.48],[.48,.58],[.46,.74],[.32,.80],[.24,.70]],
-  '萨尔':[[.02,.52],[.08,.62],[.04,.66],[.00,.58]],
-  '梅克伦堡-前波美拉尼亚':[[.54,.06],[.66,.04],[.74,.10],[.72,.20],[.62,.24],[.52,.16]],
-  '勃兰登堡':[[.52,.16],[.62,.24],[.68,.34],[.62,.42],[.50,.40],[.46,.28]],
-  '萨克森-安哈尔特':[[.46,.28],[.50,.40],[.46,.50],[.36,.52],[.34,.40],[.42,.32]],
-  '萨克森':[[.46,.50],[.62,.42],[.68,.52],[.60,.62],[.48,.58]],
-  '图林根':[[.34,.40],[.36,.52],[.48,.58],[.44,.66],[.32,.60],[.28,.48]],
-  '柏林':[[.54,.26],[.58,.24],[.60,.28],[.56,.30],[.53,.28]]
+  // ── 北部 ──
+  '石勒苏益格-荷尔斯泰因':[[.36,.05],[.46,.03],[.50,.10],[.46,.18],[.38,.19],[.32,.12]],
+  '汉堡':[[.36,.19],[.42,.18],[.44,.22],[.38,.24],[.34,.22]],
+  '不来梅':[[.28,.22],[.33,.20],[.35,.24],[.30,.26],[.27,.24]],
+  '下萨克森':[[.20,.12],[.32,.12],[.38,.19],[.34,.22],[.36,.24],[.38,.30],[.40,.36],[.36,.42],[.26,.44],[.16,.38],[.14,.26],[.18,.16]],
+
+  // ── 西部 ──
+  '北莱茵-威斯特法伦':[[.04,.28],[.16,.26],[.22,.32],[.20,.42],[.12,.48],[.04,.44]],
+  '莱茵兰-普法尔茨':[[.04,.44],[.14,.46],[.18,.52],[.14,.60],[.06,.60],[.02,.52]],
+  '萨尔':[[.03,.54],[.08,.54],[.10,.60],[.05,.64],[.01,.60]],
+  '黑森':[[.22,.42],[.34,.40],[.40,.44],[.34,.54],[.22,.52],[.18,.46]],
+  '巴登-符腾堡':[[.10,.58],[.20,.54],[.28,.60],[.28,.72],[.18,.78],[.10,.70]],
+
+  // ── 南部 ──
+  '巴伐利亚':[[.28,.50],[.40,.44],[.52,.48],[.58,.60],[.54,.76],[.42,.84],[.28,.80],[.22,.68]],
+
+  // ── 东部（华约） ──
+  '梅克伦堡-前波美拉尼亚':[[.52,.04],[.64,.03],[.72,.10],[.70,.20],[.60,.24],[.50,.18]],
+  '勃兰登堡':[[.48,.20],[.60,.24],[.66,.34],[.60,.42],[.48,.42],[.42,.30]],
+  '柏林':[[.52,.26],[.58,.25],[.60,.29],[.56,.32],[.51,.30]],
+  '萨克森-安哈尔特':[[.40,.32],[.48,.42],[.44,.50],[.34,.52],[.28,.44],[.34,.34]],
+  '图林根':[[.28,.44],[.34,.52],[.44,.52],[.42,.60],[.30,.62],[.24,.54]],
+  '萨克森':[[.44,.52],[.56,.44],[.64,.52],[.58,.62],[.46,.60]]
 };
 
 const STATE_SIDE = {
@@ -294,19 +280,20 @@ const STATE_SIDE = {
   '萨克森-安哈尔特':'warsaw','萨克森':'warsaw','图林根':'warsaw'
 };
 
+/* ★ 城市坐标与新的州位置对应 ★ */
 const NATO_CITIES = [
-  { name:'波恩', state:'北莱茵-威斯特法伦', x:.12, y:.44 },
-  { name:'汉堡', state:'汉堡', x:.37, y:.215 },
-  { name:'法兰克福', state:'黑森', x:.26, y:.48 },
-  { name:'斯图加特', state:'巴登-符腾堡', x:.20, y:.60 },
-  { name:'慕尼黑', state:'巴伐利亚', x:.40, y:.68 },
+  { name:'波恩',     state:'北莱茵-威斯特法伦', x:.10, y:.42 },
+  { name:'汉堡',     state:'汉堡',             x:.39, y:.21 },
+  { name:'法兰克福', state:'黑森',             x:.28, y:.50 },
+  { name:'斯图加特', state:'巴登-符腾堡',      x:.19, y:.66 },
+  { name:'慕尼黑',   state:'巴伐利亚',         x:.42, y:.72 },
 ];
 const WARSAW_CITIES = [
-  { name:'东柏林', state:'柏林', x:.565, y:.27 },
-  { name:'罗斯托克', state:'梅克伦堡-前波美拉尼亚', x:.60, y:.13 },
-  { name:'马格德堡', state:'萨克森-安哈尔特', x:.44, y:.38 },
-  { name:'莱比锡', state:'萨克森', x:.52, y:.52 },
-  { name:'德累斯顿', state:'萨克森', x:.62, y:.54 },
+  { name:'东柏林',   state:'柏林',             x:.55, y:.28 },
+  { name:'罗斯托克', state:'梅克伦堡-前波美拉尼亚', x:.56, y:.09 },
+  { name:'马格德堡', state:'萨克森-安哈尔特',  x:.38, y:.42 },
+  { name:'莱比锡',   state:'萨克森',           x:.48, y:.55 },
+  { name:'德累斯顿', state:'萨克森',           x:.60, y:.55 },
 ];
 
 const UNIT_STATS = {
@@ -365,6 +352,9 @@ const REINFORCEMENTS = {
   ]
 };
 
+/* =========================================================
+   全局状态
+   ========================================================= */
 let state, control, uid, playerSide = 'nato';
 let fortifications = {};
 let fortPoints = { nato:0, warsaw:0 };
@@ -426,7 +416,7 @@ function isAdjacent(s1,s2){
   if(!STATE_POLYGONS[s1] || !STATE_POLYGONS[s2]) return false;
   if(s1===s2) return false;
   const c1=stateCenter[s1], c2=stateCenter[s2];
-  return Math.hypot(c1.x-c2.x, c1.y-c2.y) < 160;
+  return Math.hypot(c1.x-c2.x, c1.y-c2.y) < 150;
 }
 
 function newGame(){
@@ -497,7 +487,7 @@ function drawStates(){
     ctx.fillStyle = side==='nato' ? '#8fc0ff' : side==='warsaw' ? '#ff9c9c' : '#999';
     ctx.font = 'bold 9px "PingFang SC","Microsoft YaHei",sans-serif';
     ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(s, c.x, c.y - 30);
+    ctx.fillText(s, c.x, c.y - 32);
     ctx.fillStyle = 'rgba(255,255,255,.28)';
     ctx.font = '8px monospace';
     ctx.fillText((STATE_AREA[s]/1000).toFixed(1)+'k km²', c.x, c.y + 34);
@@ -597,11 +587,9 @@ function drawUnit(u){
     if(!c) return;
     x = c.x; y = c.y;
   }
-
   const isAir = u.type==='air';
   const w = (isAir ? 34 : 40) * sc;
   const h = (isAir ? 24 : 28) * sc;
-
   const flashing = state.hitFlash && state.hitFlash.unitId === u.id;
 
   ctx.save();
@@ -782,9 +770,7 @@ function enableNukeMode(){
   if(nukeStock[playerSide] <= 0){ log('核打击次数已用尽。'); return; }
   if(state.side !== playerSide){ log('只能在你的回合使用核打击。'); return; }
   mode = (mode==='nuke') ? 'normal' : 'nuke';
-  deselect();
-  render();
-  updateUI();
+  deselect(); render(); updateUI();
 }
 
 function tryNuke(sName){
@@ -811,75 +797,56 @@ function tryNuke(sName){
 }
 
 /* =========================================================
-   ★★★ 拖放操作逻辑（替换原来的点击事件） ★★★
+   拖放操作
    ========================================================= */
 let dragStartState = null;
 let isDragging = false;
 
-function getStateFromEvent(e) {
+function getStateFromEvent(e){
   const rect = canvas.getBoundingClientRect();
   let clientX, clientY;
-  if (e.touches && e.touches.length > 0) {
-    clientX = e.touches[0].clientX;
-    clientY = e.touches[0].clientY;
-  } else if (e.changedTouches && e.changedTouches.length > 0) {
-    clientX = e.changedTouches[0].clientX;
-    clientY = e.changedTouches[0].clientY;
-  } else {
-    clientX = e.clientX;
-    clientY = e.clientY;
-  }
+  if(e.touches && e.touches.length > 0){ clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
+  else if(e.changedTouches && e.changedTouches.length > 0){ clientX = e.changedTouches[0].clientX; clientY = e.changedTouches[0].clientY; }
+  else { clientX = e.clientX; clientY = e.clientY; }
   const mx = (clientX - rect.left) * (W / rect.width);
-  const my = (clientY - rect.top) * (H / rect.height);
+  const my = (clientY - rect.top)  * (H / rect.height);
   return stateAt(mx, my);
 }
 
-function handlePointerStart(e) {
-  if (gameOver || state.side !== playerSide) return;
+function handlePointerStart(e){
+  if(gameOver || state.side !== playerSide) return;
   const sName = getStateFromEvent(e);
-  if (!sName) return;
+  if(!sName) return;
   dragStartState = sName;
   isDragging = true;
-  // 防止触摸时滚动页面
-  if (e.type === 'touchstart') e.preventDefault();
+  if(e.type === 'touchstart') e.preventDefault();
 }
 
-function handlePointerEnd(e) {
-  if (!isDragging) return;
+function handlePointerEnd(e){
+  if(!isDragging) return;
   isDragging = false;
-  if (gameOver || state.side !== playerSide) return;
+  if(gameOver || state.side !== playerSide) return;
   const sName = getStateFromEvent(e);
-  if (!sName) { dragStartState = null; return; }
+  if(!sName){ dragStartState = null; return; }
 
-  // 工事 / 核打击模式优先处理
-  if (mode === 'fortify') { tryFortify(sName); dragStartState = null; return; }
-  if (mode === 'nuke') { tryNuke(sName); dragStartState = null; return; }
+  if(mode === 'fortify'){ tryFortify(sName); dragStartState = null; return; }
+  if(mode === 'nuke'){ tryNuke(sName); dragStartState = null; return; }
 
-  if (sName === dragStartState) {
-    // 单纯点击
+  if(sName === dragStartState){
     normalClick(sName);
   } else {
-    // 拖动
     const startUnit = unitAt(dragStartState);
-    if (startUnit && startUnit.side === playerSide) {
+    if(startUnit && startUnit.side === playerSide){
       const endUnit = unitAt(sName);
-      if (endUnit && endUnit.side !== playerSide) {
-        // 拖到敌方单位：攻击
-        if (canAttack(startUnit, endUnit)) {
-          attack(startUnit, endUnit);
-        } else {
-          deselect();
-          log('无法攻击该目标（不相邻或已行动）');
-        }
-      } else if (!endUnit && state.reachable.has(sName)) {
-        // 拖到空地：移动
+      if(endUnit && endUnit.side !== playerSide){
+        if(canAttack(startUnit, endUnit)) attack(startUnit, endUnit);
+        else { deselect(); log('无法攻击该目标（不相邻或已行动）'); }
+      } else if(!endUnit && state.reachable.has(sName)){
         moveUnit(startUnit, sName);
       } else {
-        // 拖到无效位置
         deselect();
       }
     } else {
-      // 起点不是己方单位，就当点击终点处理
       normalClick(sName);
     }
   }
