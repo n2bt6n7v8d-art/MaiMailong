@@ -2,14 +2,55 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>冷战热斗 · 1980 欧洲战场</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  body{background:radial-gradient(circle at 50% 0%,#101a2e,#05080f 70%);color:#dbe4f0;
-    font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
-    display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:16px}
-  .game{display:grid;grid-template-columns:230px auto 230px;gap:12px;align-items:start}
-  .panel{border-radius:10px;padding:12px;font-size:12px;border:1px solid;backdrop-filter:blur(4px)}
+  html,body{width:100%;height:100%;overflow:hidden;background:#05080f;color:#dbe4f0;
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+
+  .game {
+    display: grid;
+    grid-template-columns: 180px 1fr 180px;
+    gap: 8px;
+    width: 100vw;
+    height: 100vh;
+    padding: 8px;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .panel {
+    border-radius: 10px; padding: 10px; font-size: 12px; border: 1px solid;
+    backdrop-filter: blur(4px); overflow-y: auto; box-sizing: border-box;
+    min-height: 0;
+  }
+
+  .stage {
+    min-width: 0; min-height: 0;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+
+  @media screen and (max-width: 768px) {
+    .game {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr auto;
+      overflow-y: auto;
+    }
+    .panel {
+      width: 100%; max-height: 110px;
+      display: flex; flex-direction: row;
+      overflow-x: auto; overflow-y: hidden;
+      gap: 10px; padding: 6px 10px;
+    }
+    .panel h2 { display: none; }
+    .panel .sect { margin: 0; min-width: 130px; }
+    .panel .sect h3 { font-size: 10px; margin-bottom: 3px; }
+    .panel ul li { padding: 2px 5px; font-size: 10px; }
+    .panel .stat { font-size: 11px; padding: 1px 0; }
+    .stage { height: 70vh; flex: 1 1 auto; }
+  }
+
   .panel.nato{background:linear-gradient(180deg,#0d1c3a,#08101f);border-color:#274a82;box-shadow:0 0 24px rgba(30,80,200,.25)}
   .panel.warsaw{background:linear-gradient(180deg,#3a0f14,#1c070a);border-color:#7a2530;box-shadow:0 0 24px rgba(200,40,40,.25)}
   .panel h2{font-size:12px;letter-spacing:2px;padding-bottom:8px;margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,.12)}
@@ -28,22 +69,21 @@
   .bar i{display:block;height:100%;border-radius:3px;transition:width .3s}
   .panel.nato .bar i{background:linear-gradient(90deg,#2563eb,#60a5fa)}
   .panel.warsaw .bar i{background:linear-gradient(90deg,#b91c1c,#f87171)}
-  .stage{display:flex;flex-direction:column;gap:10px}
-  .hud{display:flex;gap:10px;align-items:center;padding:10px 14px;background:rgba(255,255,255,.05);
-    border:1px solid rgba(255,255,255,.08);border-radius:9px;font-size:13px;flex-wrap:wrap}
+
+  .hud{display:flex;gap:8px;align-items:center;padding:8px 12px;background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.08);border-radius:9px;font-size:12px;flex-wrap:wrap;flex:0 0 auto}
   .badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:1px}
   .badge.nato{background:rgba(37,99,235,.28);color:#8fc0ff;box-shadow:inset 0 0 0 1px #2f5fa8}
   .badge.warsaw{background:rgba(185,28,28,.28);color:#ff9c9c;box-shadow:inset 0 0 0 1px #8b2b2b}
   .hud .sp{flex:1}
-  button{background:#2563eb;color:#fff;border:0;padding:8px 14px;border-radius:6px;font-size:12px;
+  button{background:#2563eb;color:#fff;border:0;padding:7px 12px;border-radius:6px;font-size:12px;
     cursor:pointer;font-weight:700;letter-spacing:1px;transition:.15s;font-family:inherit}
   button:hover{filter:brightness(1.18)}
-  button.warsaw{background:#b91c1c}
-  button.ghost{background:rgba(255,255,255,.1);padding:8px 12px}
+  button.ghost{background:rgba(255,255,255,.1);padding:7px 12px}
   button:disabled{opacity:.35;cursor:not-allowed}
   button.fort-btn{background:linear-gradient(135deg,#1e40af,#3b82f6)}
   .nuke-btn{position:relative;background:linear-gradient(135deg,#7f1d1d,#dc2626 60%,#f97316);
-    color:#fff;padding:9px 16px;border-radius:7px;font-size:12px;font-weight:800;letter-spacing:2px;
+    color:#fff;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:800;letter-spacing:2px;
     border:0;cursor:pointer;font-family:inherit;text-shadow:0 0 8px rgba(255,255,255,.6);
     animation:nukePulse 1.6s ease-in-out infinite}
   .nuke-btn::before{content:'';position:absolute;inset:-2px;border-radius:9px;
@@ -54,12 +94,14 @@
   @keyframes nukePulse{0%,100%{box-shadow:0 0 14px rgba(220,38,38,.7);transform:scale(1)}
     50%{box-shadow:0 0 32px rgba(255,80,50,1);transform:scale(1.05)}}
   @keyframes spin{to{transform:rotate(360deg)}}
-  canvas{display:block;border-radius:10px;cursor:pointer;box-shadow:0 8px 40px rgba(0,0,0,.7)}
-  #log{height:80px;overflow-y:auto;background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.07);
-    border-radius:8px;padding:7px 11px;font-size:11px;color:#8fa3bf;line-height:1.7;font-family:ui-monospace,monospace}
+
+  canvas{display:block;flex:1 1 auto;min-height:0;width:100%;border-radius:10px;cursor:pointer;
+    box-shadow:0 8px 40px rgba(0,0,0,.7);background:#0a0f18;touch-action:none}
+
+  #log{flex:0 0 auto;height:60px;overflow-y:auto;background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.07);
+    border-radius:8px;padding:6px 10px;font-size:11px;color:#8fa3bf;line-height:1.6;font-family:ui-monospace,monospace}
   #log b{color:#dbe4f0;font-weight:600}
 
-  /* 悬浮提示框（带X关闭按钮） */
   .tip{position:fixed;pointer-events:none;background:rgba(6,12,22,.96);border:1px solid rgba(100,150,220,.5);
     border-radius:8px;padding:10px 14px;font-size:11px;line-height:1.6;opacity:0;transition:opacity .12s;z-index:999;white-space:nowrap;
     box-shadow:0 8px 30px rgba(0,0,0,.8);min-width:180px}
@@ -117,7 +159,6 @@
 </head>
 <body>
 
-<!-- ============ 开始界面 ============ -->
 <div id="start-screen">
   <div class="start-inner">
     <div class="title-block">
@@ -148,7 +189,6 @@
   </div>
 </div>
 
-<!-- ============ 结束界面 ============ -->
 <div id="end-screen">
   <div class="end-box">
     <h2 id="end-title">—</h2>
@@ -157,9 +197,7 @@
   </div>
 </div>
 
-<!-- ============ 游戏主体 ============ -->
 <div class="game">
-  <!-- 左侧北约面板 -->
   <aside class="panel nato">
     <h2>NATO / 北约</h2>
     <div class="sect">
@@ -167,7 +205,6 @@
       <div class="stat"><span>工事点</span><b id="nato-fortp">0</b></div>
       <div class="stat"><span>核打击</span><b id="nato-nuke">—</b></div>
     </div>
-    <!-- ★ 新增：北约增援区 -->
     <div class="sect">
       <h3>增援区 · REINFORCEMENT</h3>
       <ul id="nato-reinf"></ul>
@@ -181,7 +218,6 @@
     </div>
   </aside>
 
-  <!-- 中间舞台 -->
   <main class="stage">
     <div class="hud">
       <span id="turn-label" style="font-weight:700">回合 1 / 60</span>
@@ -196,7 +232,6 @@
     <div id="log"></div>
   </main>
 
-  <!-- 右侧华约面板 -->
   <aside class="panel warsaw">
     <h2>WARSAW / 华约</h2>
     <div class="sect">
@@ -218,16 +253,12 @@
   </aside>
 </div>
 
-<!-- 悬浮提示框（带X关闭按钮） -->
 <div class="tip" id="tip">
   <div class="close-btn" id="tip-close">✕</div>
   <div class="tip-content" id="tip-content"></div>
 </div>
 
 <script>
-/* =========================================================
-   游戏数据
-   ========================================================= */
 const STATE_AREA = {
   '石勒苏益格-荷尔斯泰因':15800,'汉堡':755,'不来梅':419,'下萨克森':47400,
   '北莱茵-威斯特法伦':34100,'黑森':21100,'莱茵兰-普法尔茨':19900,
@@ -334,9 +365,6 @@ const REINFORCEMENTS = {
   ]
 };
 
-/* =========================================================
-   全局状态
-   ========================================================= */
 let state, control, uid, playerSide = 'nato';
 let fortifications = {};
 let fortPoints = { nato:0, warsaw:0 };
@@ -352,7 +380,6 @@ const ctx = canvas.getContext('2d');
 const W = 780, H = 620;
 const DPR = Math.min(window.devicePixelRatio||1, 2);
 canvas.width = W*DPR; canvas.height = H*DPR;
-canvas.style.width = W+'px'; canvas.style.height = H+'px';
 ctx.scale(DPR,DPR);
 
 const stateList = Object.keys(STATE_POLYGONS);
@@ -361,9 +388,6 @@ const sleep = ms => new Promise(r=>setTimeout(r,ms));
 const sideName = s => s==='nato' ? '北约' : '华约';
 const unitAt = sName => state.units.find(u=>u.state===sName);
 
-/* =========================================================
-   启动
-   ========================================================= */
 function startGame(side){
   playerSide = side;
   document.getElementById('start-screen').classList.add('hide');
@@ -405,9 +429,6 @@ function isAdjacent(s1,s2){
   return Math.hypot(c1.x-c2.x, c1.y-c2.y) < 160;
 }
 
-/* =========================================================
-   新游戏
-   ========================================================= */
 function newGame(){
   state = { turn:1, side:'nato', units:[], selected:null, reachable:new Set(), attackAnim:null, hitFlash:null };
   uid = 0;
@@ -447,9 +468,6 @@ function newGame(){
   startTurn('nato');
 }
 
-/* =========================================================
-   渲染
-   ========================================================= */
 function render(){
   ctx.clearRect(0,0,W,H);
   ctx.fillStyle = '#0a0f18';
@@ -634,9 +652,6 @@ function roundRect(ctx,x,y,w,h,r){
   ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
 }
 
-/* =========================================================
-   战斗 / 移动 / 工事 / 核打击
-   ========================================================= */
 function effectiveDef(u){
   const fort = fortifications[u.state] || 0;
   return u.def * (1 + 0.5*fort);
@@ -796,20 +811,85 @@ function tryNuke(sName){
 }
 
 /* =========================================================
-   玩家交互
+   ★★★ 拖放操作逻辑（替换原来的点击事件） ★★★
    ========================================================= */
-canvas.addEventListener('click', e=>{
-  if(gameOver) return;
-  if(state.side !== playerSide) return;
+let dragStartState = null;
+let isDragging = false;
+
+function getStateFromEvent(e) {
   const rect = canvas.getBoundingClientRect();
-  const mx = (e.clientX-rect.left) * (W/rect.width);
-  const my = (e.clientY-rect.top)  * (H/rect.height);
-  const sName = stateAt(mx,my);
-  if(!sName) return;
-  if(mode==='fortify'){ tryFortify(sName); return; }
-  if(mode==='nuke'){ tryNuke(sName); return; }
-  normalClick(sName);
-});
+  let clientX, clientY;
+  if (e.touches && e.touches.length > 0) {
+    clientX = e.touches[0].clientX;
+    clientY = e.touches[0].clientY;
+  } else if (e.changedTouches && e.changedTouches.length > 0) {
+    clientX = e.changedTouches[0].clientX;
+    clientY = e.changedTouches[0].clientY;
+  } else {
+    clientX = e.clientX;
+    clientY = e.clientY;
+  }
+  const mx = (clientX - rect.left) * (W / rect.width);
+  const my = (clientY - rect.top) * (H / rect.height);
+  return stateAt(mx, my);
+}
+
+function handlePointerStart(e) {
+  if (gameOver || state.side !== playerSide) return;
+  const sName = getStateFromEvent(e);
+  if (!sName) return;
+  dragStartState = sName;
+  isDragging = true;
+  // 防止触摸时滚动页面
+  if (e.type === 'touchstart') e.preventDefault();
+}
+
+function handlePointerEnd(e) {
+  if (!isDragging) return;
+  isDragging = false;
+  if (gameOver || state.side !== playerSide) return;
+  const sName = getStateFromEvent(e);
+  if (!sName) { dragStartState = null; return; }
+
+  // 工事 / 核打击模式优先处理
+  if (mode === 'fortify') { tryFortify(sName); dragStartState = null; return; }
+  if (mode === 'nuke') { tryNuke(sName); dragStartState = null; return; }
+
+  if (sName === dragStartState) {
+    // 单纯点击
+    normalClick(sName);
+  } else {
+    // 拖动
+    const startUnit = unitAt(dragStartState);
+    if (startUnit && startUnit.side === playerSide) {
+      const endUnit = unitAt(sName);
+      if (endUnit && endUnit.side !== playerSide) {
+        // 拖到敌方单位：攻击
+        if (canAttack(startUnit, endUnit)) {
+          attack(startUnit, endUnit);
+        } else {
+          deselect();
+          log('无法攻击该目标（不相邻或已行动）');
+        }
+      } else if (!endUnit && state.reachable.has(sName)) {
+        // 拖到空地：移动
+        moveUnit(startUnit, sName);
+      } else {
+        // 拖到无效位置
+        deselect();
+      }
+    } else {
+      // 起点不是己方单位，就当点击终点处理
+      normalClick(sName);
+    }
+  }
+  dragStartState = null;
+}
+
+canvas.addEventListener('mousedown', handlePointerStart);
+canvas.addEventListener('mouseup', handlePointerEnd);
+canvas.addEventListener('touchstart', handlePointerStart, { passive: false });
+canvas.addEventListener('touchend', handlePointerEnd);
 
 function normalClick(sName){
   const target = unitAt(sName);
@@ -826,7 +906,6 @@ function normalClick(sName){
   if(target && target.side===state.side) select(target);
 }
 
-/* 悬浮提示框控制 */
 const tipEl = document.getElementById('tip');
 const tipContent = document.getElementById('tip-content');
 const tipClose = document.getElementById('tip-close');
@@ -865,9 +944,6 @@ canvas.addEventListener('mousemove', e=>{
 
 canvas.addEventListener('mouseleave', ()=>{ tipEl.classList.remove('on'); });
 
-/* =========================================================
-   回合流程
-   ========================================================= */
 function startTurn(side){
   if(gameOver) return;
   state.side = side;
@@ -960,9 +1036,6 @@ document.getElementById('nuke-btn').addEventListener('click', ()=>{
   enableNukeMode();
 });
 
-/* =========================================================
-   胜负判定
-   ========================================================= */
 function checkVictory(){
   const natoHome   = stateList.filter(s => STATE_SIDE[s]==='nato');
   const warsawHome = stateList.filter(s => STATE_SIDE[s]==='warsaw');
@@ -996,9 +1069,6 @@ function endGame(winner, desc){
   log(`<b style="color:#fbbf24">【游戏结束】${title.textContent} —— ${desc}</b>`);
 }
 
-/* =========================================================
-   AI
-   ========================================================= */
 async function aiTurn(){
   if(gameOver) return;
   const aiSide = state.side;
@@ -1132,9 +1202,6 @@ async function aiConsiderNuke(side){
   await sleep(400);
 }
 
-/* =========================================================
-   UI 更新
-   ========================================================= */
 function log(html){
   const el = document.getElementById('log');
   const line = document.createElement('div');
@@ -1190,7 +1257,6 @@ function updateUI(){
     document.getElementById(side+'-bar').style.width = (terr/stateList.length*100).toFixed(0)+'%';
   });
 
-  // ★ 更新北约和华约的增援列表
   ['nato','warsaw'].forEach(side=>{
     const el = document.getElementById(side+'-reinf');
     if(!el) return;
