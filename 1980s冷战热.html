@@ -226,7 +226,7 @@
 
 <script>
 /* =========================================================
-   ★★★ 德国轮廓（所有相邻州共享顶点） ★★★
+   地图：完整的德国轮廓，各州首尾相连
    ========================================================= */
 const STATE_AREA = {
   '石勒苏益格-荷尔斯泰因':15800,'汉堡':755,'不来梅':419,'下萨克森':47400,
@@ -239,71 +239,72 @@ const STATE_AREA = {
 const STATE_POLYGONS = {
   // ══════════ 北部 ══════════
   '石勒苏益格-荷尔斯泰因': [
-    [0.32,0.04],[0.46,0.04],[0.48,0.14],[0.36,0.16],[0.30,0.10]
+    [0.30,0.04],[0.44,0.04],[0.46,0.14],[0.40,0.18],[0.32,0.18],[0.26,0.10]
   ],
   '汉堡': [
-    [0.36,0.16],[0.46,0.16],[0.48,0.14],[0.46,0.22],[0.36,0.22]
+    [0.32,0.18],[0.40,0.18],[0.42,0.24],[0.34,0.24]
   ],
   '梅克伦堡-前波美拉尼亚': [
-    [0.46,0.04],[0.60,0.05],[0.72,0.12],[0.72,0.22],
-    [0.58,0.26],[0.48,0.22],[0.48,0.14]
-  ],
-  '下萨克森': [
-    [0.10,0.12],[0.30,0.10],[0.36,0.16],[0.36,0.22],
-    [0.46,0.22],[0.48,0.22],[0.58,0.26],[0.60,0.36],
-    [0.52,0.44],[0.38,0.46],[0.24,0.42],[0.14,0.32],[0.10,0.22]
+    [0.44,0.04],[0.58,0.05],[0.70,0.10],[0.76,0.18],[0.70,0.26],[0.60,0.28],
+    [0.48,0.26],[0.42,0.24],[0.40,0.18],[0.46,0.14]
   ],
   '不来梅': [
-    [0.22,0.24],[0.30,0.24],[0.30,0.30],[0.22,0.30]
+    [0.18,0.28],[0.24,0.28],[0.24,0.34],[0.18,0.34]
+  ],
+  '下萨克森': [
+    [0.14,0.14],[0.26,0.10],[0.30,0.18],[0.32,0.18],[0.34,0.24],[0.42,0.24],
+    [0.48,0.26],[0.50,0.34],[0.48,0.42],[0.40,0.46],[0.30,0.42],[0.20,0.34],
+    [0.14,0.24]
   ],
 
-  // ══════════ 东部（华约） ══════════
+  // ══════════ 东部 ══════════
   '勃兰登堡': [
-    [0.58,0.26],[0.72,0.22],[0.82,0.30],[0.82,0.42],
-    [0.72,0.48],[0.60,0.46],[0.52,0.44],[0.60,0.36]
+    [0.48,0.26],[0.60,0.28],[0.70,0.26],[0.76,0.32],[0.78,0.42],[0.70,0.50],
+    [0.60,0.50],[0.52,0.50],[0.48,0.42],[0.50,0.34]
   ],
   '柏林': [
-    [0.64,0.30],[0.72,0.30],[0.72,0.36],[0.64,0.36]
+    [0.60,0.32],[0.66,0.32],[0.68,0.38],[0.62,0.40],[0.58,0.36]
   ],
   '萨克森-安哈尔特': [
-    [0.60,0.46],[0.72,0.48],[0.78,0.56],[0.72,0.64],
-    [0.64,0.62],[0.68,0.52]
+    [0.40,0.46],[0.48,0.42],[0.52,0.50],[0.60,0.50],[0.54,0.58],
+    [0.46,0.60],[0.38,0.58],[0.34,0.52],[0.40,0.50]
   ],
   '图林根': [
-    [0.52,0.44],[0.60,0.46],[0.68,0.52],[0.64,0.62],
-    [0.52,0.64],[0.44,0.58],[0.50,0.54]
+    [0.36,0.60],[0.46,0.60],[0.54,0.58],[0.52,0.66],[0.44,0.70],
+    [0.34,0.66],[0.30,0.62]
   ],
   '萨克森': [
-    [0.64,0.62],[0.72,0.64],[0.78,0.56],[0.82,0.62],
-    [0.78,0.72],[0.68,0.74],[0.60,0.68]
+    [0.54,0.58],[0.60,0.50],[0.70,0.50],[0.76,0.56],[0.76,0.66],
+    [0.68,0.72],[0.58,0.70],[0.52,0.66]
   ],
 
-  // ══════════ 中部 ══════════
+  // ══════════ 西部 ══════════
   '北莱茵-威斯特法伦': [
-    [0.02,0.30],[0.10,0.22],[0.14,0.32],[0.24,0.42],
-    [0.20,0.52],[0.10,0.56],[0.00,0.50],[0.00,0.40]
+    [0.06,0.34],[0.14,0.24],[0.20,0.34],[0.30,0.42],[0.30,0.52],[0.22,0.58],
+    [0.10,0.56],[0.06,0.46]
   ],
   '黑森': [
-    [0.24,0.42],[0.38,0.46],[0.52,0.44],[0.50,0.54],
-    [0.36,0.58],[0.22,0.56],[0.20,0.52]
+    [0.30,0.42],[0.40,0.46],[0.48,0.42],[0.52,0.50],[0.48,0.58],[0.36,0.60],
+    [0.26,0.56],[0.30,0.52]
+  ],
+
+  // ══════════ 西南 ══════════
+  '莱茵兰-普法尔茨': [
+    [0.06,0.46],[0.10,0.56],[0.22,0.58],[0.26,0.62],[0.24,0.70],[0.16,0.72],
+    [0.08,0.68],[0.04,0.60]
+  ],
+  '萨尔': [
+    [0.04,0.60],[0.08,0.68],[0.10,0.74],[0.06,0.78],[0.02,0.72]
+  ],
+  '巴登-符腾堡': [
+    [0.16,0.72],[0.24,0.70],[0.26,0.62],[0.36,0.60],[0.40,0.68],[0.36,0.78],
+    [0.24,0.80],[0.16,0.76]
   ],
 
   // ══════════ 南部 ══════════
-  '莱茵兰-普法尔茨': [
-    [0.00,0.50],[0.10,0.56],[0.20,0.52],[0.22,0.56],
-    [0.18,0.64],[0.10,0.68],[0.00,0.64]
-  ],
-  '萨尔': [
-    [0.00,0.64],[0.10,0.68],[0.08,0.76],[0.00,0.76]
-  ],
-  '巴登-符腾堡': [
-    [0.10,0.68],[0.18,0.64],[0.22,0.56],[0.36,0.58],
-    [0.42,0.66],[0.38,0.78],[0.26,0.84],[0.14,0.80],[0.08,0.76]
-  ],
   '巴伐利亚': [
-    [0.36,0.58],[0.44,0.58],[0.52,0.64],[0.60,0.68],
-    [0.68,0.74],[0.72,0.84],[0.62,0.92],[0.48,0.94],
-    [0.36,0.90],[0.38,0.78],[0.42,0.66]
+    [0.30,0.62],[0.36,0.60],[0.40,0.68],[0.50,0.68],[0.58,0.70],[0.68,0.72],[0.76,0.66],
+    [0.80,0.72],[0.76,0.84],[0.64,0.90],[0.50,0.92],[0.38,0.88],[0.30,0.78]
   ]
 };
 
@@ -315,39 +316,39 @@ const STATE_SIDE = {
   '萨克森-安哈尔特':'warsaw','萨克森':'warsaw','图林根':'warsaw'
 };
 
-/* ★★★ 显式邻接表（不再用距离计算） ★★★ */
+/* ★★★ 显式邻接表 ★★★ */
 const ADJACENCY = {
   '石勒苏益格-荷尔斯泰因': ['汉堡','梅克伦堡-前波美拉尼亚','下萨克森'],
-  '汉堡': ['石勒苏益格-荷尔斯泰因','下萨克森'],
+  '汉堡': ['石勒苏益格-荷尔斯泰因','下萨克森','梅克伦堡-前波美拉尼亚'],
   '不来梅': ['下萨克森'],
   '下萨克森': ['石勒苏益格-荷尔斯泰因','汉堡','不来梅','北莱茵-威斯特法伦','黑森','图林根','萨克森-安哈尔特','勃兰登堡','梅克伦堡-前波美拉尼亚'],
   '北莱茵-威斯特法伦': ['下萨克森','黑森','莱茵兰-普法尔茨'],
-  '黑森': ['下萨克森','北莱茵-威斯特法伦','莱茵兰-普法尔茨','巴登-符腾堡','巴伐利亚','图林根'],
+  '黑森': ['下萨克森','北莱茵-威斯特法伦','莱茵兰-普法尔茨','巴登-符腾堡','巴伐利亚','图林根','萨克森-安哈尔特'],
   '莱茵兰-普法尔茨': ['北莱茵-威斯特法伦','黑森','巴登-符腾堡','萨尔'],
   '萨尔': ['莱茵兰-普法尔茨'],
   '巴登-符腾堡': ['莱茵兰-普法尔茨','黑森','巴伐利亚'],
   '巴伐利亚': ['巴登-符腾堡','黑森','图林根','萨克森'],
-  '梅克伦堡-前波美拉尼亚': ['石勒苏益格-荷尔斯泰因','下萨克森','勃兰登堡'],
+  '梅克伦堡-前波美拉尼亚': ['石勒苏益格-荷尔斯泰因','汉堡','下萨克森','勃兰登堡'],
   '勃兰登堡': ['梅克伦堡-前波美拉尼亚','下萨克森','萨克森-安哈尔特','柏林'],
   '柏林': ['勃兰登堡'],
-  '萨克森-安哈尔特': ['下萨克森','勃兰登堡','图林根','萨克森'],
+  '萨克森-安哈尔特': ['下萨克森','勃兰登堡','图林根','萨克森','黑森'],
   '图林根': ['下萨克森','黑森','巴伐利亚','萨克森-安哈尔特','萨克森'],
   '萨克森': ['勃兰登堡','萨克森-安哈尔特','图林根','巴伐利亚']
 };
 
 const NATO_CITIES = [
-  { name:'波恩',     state:'北莱茵-威斯特法伦', x:.08, y:.42 },
-  { name:'汉堡',     state:'汉堡',             x:.41, y:.19 },
-  { name:'法兰克福', state:'黑森',             x:.36, y:.50 },
-  { name:'斯图加特', state:'巴登-符腾堡',      x:.22, y:.72 },
-  { name:'慕尼黑',   state:'巴伐利亚',         x:.50, y:.78 },
+  { name:'波恩',     state:'北莱茵-威斯特法伦', x:.12, y:.44 },
+  { name:'汉堡',     state:'汉堡',             x:.37, y:.21 },
+  { name:'法兰克福', state:'黑森',             x:.38, y:.50 },
+  { name:'斯图加特', state:'巴登-符腾堡',      x:.26, y:.72 },
+  { name:'慕尼黑',   state:'巴伐利亚',         x:.55, y:.78 },
 ];
 const WARSAW_CITIES = [
-  { name:'东柏林',   state:'柏林',             x:.68, y:.33 },
+  { name:'东柏林',   state:'柏林',             x:.63, y:.36 },
   { name:'罗斯托克', state:'梅克伦堡-前波美拉尼亚', x:.60, y:.10 },
-  { name:'马格德堡', state:'萨克森-安哈尔特',  x:.68, y:.52 },
-  { name:'莱比锡',   state:'萨克森',           x:.68, y:.65 },
-  { name:'德累斯顿', state:'萨克森',           x:.76, y:.68 },
+  { name:'马格德堡', state:'萨克森-安哈尔特',  x:.46, y:.52 },
+  { name:'莱比锡',   state:'萨克森',           x:.62, y:.62 },
+  { name:'德累斯顿', state:'萨克森',           x:.72, y:.62 },
 ];
 
 const UNIT_STATS = {
@@ -427,7 +428,8 @@ const stateList = Object.keys(STATE_POLYGONS);
 const stateCenter = {};
 const sleep = ms => new Promise(r=>setTimeout(r,ms));
 const sideName = s => s==='nato' ? '北约' : '华约';
-const unitAt = sName => state.units.find(u=>u.state===sName);
+const unitsAt = sName => state ? state.units.filter(u=>u.state===sName) : [];
+const unitAt = sName => { const arr = unitsAt(sName); return arr.length ? arr[0] : null; };
 
 function startGame(side){
   playerSide = side;
@@ -463,7 +465,6 @@ function stateAt(mx,my){
   return null;
 }
 
-/* ★★★ 用邻接表判断相邻，不再用距离 ★★★ */
 function isAdjacent(s1,s2){
   if(!ADJACENCY[s1]) return false;
   return ADJACENCY[s1].includes(s2);
@@ -574,7 +575,6 @@ function drawCities(){
   WARSAW_CITIES.forEach(drawCity);
 }
 
-/* ★★★ 前线（虚线）：只连接邻接表中真正接壤的州 ★★★ */
 function drawFront(){
   ctx.save();
   ctx.lineWidth = 3.5; ctx.lineCap = 'round'; ctx.setLineDash([8,5]);
@@ -611,10 +611,11 @@ function drawHighlights(){
     ctx.fillStyle = 'rgba(255,235,120,.18)'; ctx.fill();
     ctx.strokeStyle = 'rgba(255,235,120,.6)'; ctx.lineWidth = 2; ctx.stroke();
   }
-  for(const u of state.units){
-    if(u.side===sel.side) continue;
-    if(!canAttack(sel,u)) continue;
-    const c = stateCenter[u.state];
+  // 相邻敌方州高亮
+  for(const adj of (ADJACENCY[sel.state] || [])){
+    if(control[adj] === sel.side) continue;
+    if(!unitsAt(adj).some(u => u.side !== sel.side)) continue;
+    const c = stateCenter[adj];
     if(!c) continue;
     ctx.beginPath(); ctx.arc(c.x, c.y, 28, 0, Math.PI*2);
     ctx.strokeStyle = '#ff4d4d'; ctx.lineWidth = 3;
@@ -623,20 +624,39 @@ function drawHighlights(){
 }
 
 function drawUnits(){
-  const sorted = [...state.units].sort((a,b)=>(a.type==='air'?0:1)-(b.type==='air'?0:1));
-  sorted.forEach(drawUnit);
+  // 按州分组，堆叠显示
+  const byState = {};
+  state.units.forEach(u => {
+    if(!byState[u.state]) byState[u.state] = [];
+    byState[u.state].push(u);
+  });
+  // 先画空军（下层），再画陆军
+  const drawOrder = [];
+  stateList.forEach(s => {
+    const units = byState[s] || [];
+    units.sort((a,b)=>(a.type==='air'?0:1)-(b.type==='air'?0:1));
+    units.forEach((u, idx) => drawOrder.push({ u, idx, total: units.length, stateName: s }));
+  });
+  drawOrder.forEach(item => drawUnit(item.u, item.idx, item.total));
 }
 
-function drawUnit(u){
+function drawUnit(u, stackIdx, stackTotal){
   let x, y, sc = 1;
   const anim = state.attackAnim;
+  let baseX, baseY;
+  const c = stateCenter[u.state];
+  if(!c) return;
+  baseX = c.x; baseY = c.y;
+
   if(anim && anim.unitId === u.id){
     x = anim.x; y = anim.y; sc = anim.scale;
   } else {
-    const c = stateCenter[u.state];
-    if(!c) return;
-    x = c.x; y = c.y;
+    // 堆叠偏移
+    const stackOffset = stackTotal <= 1 ? 0 : (stackIdx - (stackTotal-1)/2) * 14;
+    x = baseX + stackOffset;
+    y = baseY + (stackTotal > 1 ? stackIdx * 3 : 0);
   }
+
   const isAir = u.type==='air';
   const w = (isAir ? 34 : 40) * sc;
   const h = (isAir ? 24 : 28) * sc;
@@ -678,6 +698,14 @@ function drawUnit(u){
   ctx.fillStyle = ratio>.5 ? '#4ade80' : ratio>.25 ? '#facc15' : '#ef4444';
   ctx.fillRect(bx,by,bw*ratio,bh);
 
+  // 堆叠总数标记
+  if(stackTotal > 1 && stackIdx === 0){
+    ctx.fillStyle = 'rgba(255,255,255,.9)';
+    ctx.font = 'bold 10px monospace';
+    ctx.textAlign='right';
+    ctx.fillText('x'+stackTotal, x+w/2+2, y-h/2+2);
+  }
+
   if(u.side===state.side && (u.moved||u.attacked)){
     ctx.fillStyle='rgba(255,255,255,.35)';
     ctx.beginPath(); ctx.arc(x+w/2-4, y-h/2+4, 2.6, 0, Math.PI*2); ctx.fill();
@@ -705,7 +733,6 @@ function computeReachable(u){
     visited.add(s);
     if(steps > 0) reach.add(s);
     for(const n of (ADJACENCY[s] || [])){
-      if(unitAt(n)) continue;
       dfs(n, steps+1);
     }
   }
@@ -762,7 +789,7 @@ async function attack(a, b){
         a.hp -= dmgAtk;
         let txt = `<b>${sideName(a.side)}</b> ${a.name} → ${b.name}　敌损 ${dmgDef}`;
         if(dmgAtk) txt += `，己损 ${dmgAtk}`;
-        if(b.hp <= 0){ removeUnit(b); control[b.state] = a.side; txt += `　<span style="color:#f87171">【歼灭】</span>`; }
+        if(b.hp <= 0){ removeUnit(b); if(unitsAt(b.state).every(u=>u.side===a.side)) control[b.state] = a.side; txt += `　<span style="color:#f87171">【歼灭】</span>`; }
         if(a.hp <= 0){ removeUnit(a); txt += `　<span style="color:#f87171">【攻击方覆灭】</span>`; }
         log(txt);
       }
@@ -822,14 +849,14 @@ function tryNuke(sName){
   if(gameOver) return;
   if(nukeStock[playerSide] <= 0) return;
   if(state.side !== playerSide) return;
-  const target = unitAt(sName);
+  const targets = unitsAt(sName);
   nukeStock[playerSide]--;
   nukesUsed[playerSide]++;
   mode = 'normal';
   log(`<b style="color:#f97316">☢ 核打击！</b> ${sideName(playerSide)} 对 ${sName} 实施战术核打击`);
-  if(target){
-    target.atk = 0; target.def = 2; target.nuked = true;
-    log(`　${target.name} 攻击力归零，防御力降至 2。`);
+  if(targets.length){
+    targets.forEach(t => { t.atk = 0; t.def = 2; t.nuked = true; });
+    log(`　${targets.map(t=>t.name).join('、')} 攻击力归零，防御力降至 2。`);
   } else {
     log(`　该区域无部队，打击落空。`);
   }
@@ -880,14 +907,21 @@ function handlePointerEnd(e){
   if(sName === dragStartState){
     normalClick(sName);
   } else {
-    const startUnit = unitAt(dragStartState);
+    // 选中的单位优先，否则用起始州的己方单位
+    let startUnit = state.selected;
+    if(!startUnit){
+      const list = unitsAt(dragStartState).filter(u=>u.side===playerSide);
+      startUnit = list[0];
+    }
     if(startUnit && startUnit.side === playerSide){
-      const endUnit = unitAt(sName);
-      if(endUnit && endUnit.side !== playerSide){
-        if(canAttack(startUnit, endUnit)) attack(startUnit, endUnit);
+      const endUnits = unitsAt(sName);
+      const enemyUnit = endUnits.find(u => u.side !== playerSide);
+      if(enemyUnit){
+        if(canAttack(startUnit, enemyUnit)) attack(startUnit, enemyUnit);
         else { deselect(); log('无法攻击该目标（不相邻或已行动）'); }
-      } else if(!endUnit && state.reachable.has(sName)){
-        moveUnit(startUnit, sName);
+      } else if(state.reachable.has(sName) || isAdjacent(startUnit.state, sName)){
+        if(startUnit.moved){ deselect(); log('该单位本回合已移动。'); }
+        else moveUnit(startUnit, sName);
       } else {
         deselect();
       }
@@ -904,18 +938,21 @@ canvas.addEventListener('touchstart', handlePointerStart, { passive: false });
 canvas.addEventListener('touchend', handlePointerEnd);
 
 function normalClick(sName){
-  const target = unitAt(sName);
+  const list = unitsAt(sName);
+  const myUnit = list.find(u => u.side === playerSide);
+  const enemyUnit = list.find(u => u.side !== playerSide);
   const sel = state.selected;
+
   if(sel){
-    if(target === sel){ deselect(); return; }
-    if(target && target.side===state.side){ select(target); return; }
-    if(target && target.side!==state.side){
-      if(canAttack(sel,target)){ attack(sel,target); return; }
+    if(sel.state === sName){ deselect(); return; }
+    if(myUnit && !enemyUnit){ select(myUnit); return; }
+    if(enemyUnit){
+      if(canAttack(sel, enemyUnit)){ attack(sel, enemyUnit); return; }
     }
-    if(state.reachable.has(sName)){ moveUnit(sel,sName); return; }
+    if(state.reachable.has(sName)){ moveUnit(sel, sName); return; }
     deselect(); return;
   }
-  if(target && target.side===state.side) select(target);
+  if(myUnit) select(myUnit);
 }
 
 const tipEl = document.getElementById('tip');
@@ -934,12 +971,13 @@ canvas.addEventListener('mousemove', e=>{
   const mx = (e.clientX-rect.left) * (W/rect.width);
   const my = (e.clientY-rect.top)  * (H/rect.height);
   const sName = stateAt(mx,my);
-  const u = sName ? unitAt(sName) : null;
-  if(u){
+  const list = sName ? unitsAt(sName) : [];
+  if(list.length){
+    const u = list[0];
     const st = UNIT_STATS[u.type];
     const fort = fortifications[u.state] || 0;
     tipContent.innerHTML =
-      `<div class="n" style="color:${u.side==='nato'?'#8fc0ff':'#ff9c9c'}">${u.name}</div>` +
+      `<div class="n" style="color:${u.side==='nato'?'#8fc0ff':'#ff9c9c'}">${u.name}${list.length>1?' ×'+list.length:''}</div>` +
       `${sideName(u.side)} · ${st.name}<br>` +
       `⚔ 攻击 <b style="color:#f87171">${u.atk}</b>　🛡 防御 <b style="color:#93c5fd">${u.def}</b>` +
       (fort?` <span style="color:#93c5fd">(+${fort*50}%工事)</span>`:'') + `<br>` +
@@ -1004,9 +1042,9 @@ function spawnReinforcements(side){
 }
 
 function findSpawn(side){
-  const own = stateList.filter(s => control[s]===side && !unitAt(s));
+  const own = stateList.filter(s => control[s]===side);
   if(own.length) return own[Math.floor(Math.random()*own.length)];
-  const any = stateList.filter(s => !unitAt(s));
+  const any = stateList;
   return any.length ? any[0] : null;
 }
 
@@ -1168,7 +1206,6 @@ function aiFortify(side){
   const own = stateList.filter(s => control[s]===side && (fortifications[s]||0) < 2);
   if(!own.length) return;
   const threats = own.map(s=>{
-    const c = stateCenter[s];
     let threat = 0;
     state.units.forEach(e=>{
       if(e.side === side) return;
