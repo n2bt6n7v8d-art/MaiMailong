@@ -8,17 +8,14 @@
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{width:100%;height:100%;overflow:hidden;background:#05080f;color:#dbe4f0;
     font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
-
   .game{display:grid;grid-template-columns:180px 1fr 180px;gap:8px;width:100vw;height:100vh;
     padding:8px;box-sizing:border-box;overflow:hidden}
   .panel{border-radius:10px;padding:10px;font-size:12px;border:1px solid;backdrop-filter:blur(4px);
     overflow-y:auto;box-sizing:border-box;min-height:0}
   .stage{min-width:0;min-height:0;display:flex;flex-direction:column;gap:8px}
-
   @media screen and (max-width:768px){
     .game{grid-template-columns:1fr;grid-template-rows:auto 1fr auto;overflow-y:auto}
-    .panel{width:100%;max-height:110px;display:flex;flex-direction:row;
-      overflow-x:auto;overflow-y:hidden;gap:10px;padding:6px 10px}
+    .panel{width:100%;max-height:110px;display:flex;flex-direction:row;overflow-x:auto;overflow-y:hidden;gap:10px;padding:6px 10px}
     .panel h2{display:none}
     .panel .sect{margin:0;min-width:130px}
     .panel .sect h3{font-size:10px;margin-bottom:3px}
@@ -26,7 +23,6 @@
     .panel .stat{font-size:11px;padding:1px 0}
     .stage{height:70vh;flex:1 1 auto}
   }
-
   .panel.nato{background:linear-gradient(180deg,#0d1c3a,#08101f);border-color:#274a82;box-shadow:0 0 24px rgba(30,80,200,.25)}
   .panel.warsaw{background:linear-gradient(180deg,#3a0f14,#1c070a);border-color:#7a2530;box-shadow:0 0 24px rgba(200,40,40,.25)}
   .panel h2{font-size:12px;letter-spacing:2px;padding-bottom:8px;margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,.12)}
@@ -45,7 +41,6 @@
   .bar i{display:block;height:100%;border-radius:3px;transition:width .3s}
   .panel.nato .bar i{background:linear-gradient(90deg,#2563eb,#60a5fa)}
   .panel.warsaw .bar i{background:linear-gradient(90deg,#b91c1c,#f87171)}
-
   .hud{display:flex;gap:8px;align-items:center;padding:8px 12px;background:rgba(255,255,255,.05);
     border:1px solid rgba(255,255,255,.08);border-radius:9px;font-size:12px;flex-wrap:wrap;flex:0 0 auto}
   .badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:1px}
@@ -70,14 +65,11 @@
   @keyframes nukePulse{0%,100%{box-shadow:0 0 14px rgba(220,38,38,.7);transform:scale(1)}
     50%{box-shadow:0 0 32px rgba(255,80,50,1);transform:scale(1.05)}}
   @keyframes spin{to{transform:rotate(360deg)}}
-
   canvas{display:block;flex:1 1 auto;min-height:0;width:100%;border-radius:10px;cursor:pointer;
     box-shadow:0 8px 40px rgba(0,0,0,.7);background:#0a0f18;touch-action:none}
-
   #log{flex:0 0 auto;height:60px;overflow-y:auto;background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.07);
     border-radius:8px;padding:6px 10px;font-size:11px;color:#8fa3bf;line-height:1.6;font-family:ui-monospace,monospace}
   #log b{color:#dbe4f0;font-weight:600}
-
   .tip{position:fixed;pointer-events:none;background:rgba(6,12,22,.96);border:1px solid rgba(100,150,220,.5);
     border-radius:8px;padding:10px 14px;font-size:11px;line-height:1.6;opacity:0;transition:opacity .12s;z-index:999;white-space:nowrap;
     box-shadow:0 8px 30px rgba(0,0,0,.8);min-width:180px}
@@ -88,7 +80,6 @@
     transition:.15s;user-select:none;box-shadow:0 0 8px rgba(220,38,38,.6);pointer-events:auto}
   .tip .close-btn:hover{background:#ef4444;transform:scale(1.15)}
   .tip .tip-content{padding-right:16px}
-
   #start-screen{position:fixed;inset:0;z-index:1000;
     background:radial-gradient(circle at 20% 30%,rgba(37,99,235,.20),transparent 50%),
       radial-gradient(circle at 80% 70%,rgba(185,28,28,.20),transparent 50%),
@@ -122,7 +113,6 @@
   .faction .fen{font-size:10px;letter-spacing:3px;color:#6b83a8;margin-bottom:14px}
   .faction .flist{font-size:11px;line-height:1.75;color:#8fa3bf}
   .footer-note{font-size:11px;color:#556b8a;line-height:1.9;letter-spacing:1px}
-
   #end-screen{position:fixed;inset:0;z-index:1100;background:rgba(3,6,12,.94);
     display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
   #end-screen.show{display:flex}
@@ -236,8 +226,7 @@
 
 <script>
 /* =========================================================
-   ★★★ 共享顶点的德国州多边形（无重叠） ★★★
-   所有相邻州共享完全相同的坐标值。
+   ★★★ 德国轮廓（所有相邻州共享顶点） ★★★
    ========================================================= */
 const STATE_AREA = {
   '石勒苏益格-荷尔斯泰因':15800,'汉堡':755,'不来梅':419,'下萨克森':47400,
@@ -248,69 +237,73 @@ const STATE_AREA = {
 };
 
 const STATE_POLYGONS = {
-  // ═══════════════════════ 北约（西德）═══════════════════════
+  // ══════════ 北部 ══════════
   '石勒苏益格-荷尔斯泰因': [
-    [0.28,0.04],[0.42,0.02],[0.48,0.08],[0.42,0.14],[0.28,0.14],[0.14,0.14]
+    [0.32,0.04],[0.46,0.04],[0.48,0.14],[0.36,0.16],[0.30,0.10]
   ],
   '汉堡': [
-    [0.28,0.14],[0.38,0.14],[0.38,0.20],[0.28,0.20]
+    [0.36,0.16],[0.46,0.16],[0.48,0.14],[0.46,0.22],[0.36,0.22]
+  ],
+  '梅克伦堡-前波美拉尼亚': [
+    [0.46,0.04],[0.60,0.05],[0.72,0.12],[0.72,0.22],
+    [0.58,0.26],[0.48,0.22],[0.48,0.14]
   ],
   '下萨克森': [
-    [0.14,0.14],[0.28,0.14],[0.28,0.20],[0.38,0.20],[0.38,0.14],[0.42,0.14],
-    [0.44,0.24],[0.46,0.34],[0.42,0.42],[0.34,0.46],[0.24,0.44],
-    [0.22,0.38],[0.22,0.32],[0.16,0.32],[0.16,0.38],
-    [0.06,0.26],[0.14,0.14]
+    [0.10,0.12],[0.30,0.10],[0.36,0.16],[0.36,0.22],
+    [0.46,0.22],[0.48,0.22],[0.58,0.26],[0.60,0.36],
+    [0.52,0.44],[0.38,0.46],[0.24,0.42],[0.14,0.32],[0.10,0.22]
   ],
   '不来梅': [
-    [0.16,0.32],[0.22,0.32],[0.22,0.38],[0.16,0.38]
-  ],
-  '北莱茵-威斯特法伦': [
-    [0.06,0.26],[0.16,0.38],[0.24,0.44],[0.20,0.50],
-    [0.14,0.54],[0.06,0.54],[0.00,0.46],[0.00,0.34]
-  ],
-  '黑森': [
-    [0.24,0.44],[0.34,0.46],[0.38,0.50],[0.36,0.58],[0.28,0.60],
-    [0.18,0.58],[0.14,0.54],[0.20,0.50]
-  ],
-  '莱茵兰-普法尔茨': [
-    [0.00,0.46],[0.06,0.54],[0.14,0.54],[0.18,0.58],
-    [0.16,0.66],[0.08,0.72],[0.00,0.66]
-  ],
-  '萨尔': [
-    [0.00,0.66],[0.08,0.72],[0.06,0.78],[0.00,0.78]
-  ],
-  '巴登-符腾堡': [
-    [0.08,0.72],[0.16,0.66],[0.18,0.58],[0.28,0.60],
-    [0.30,0.68],[0.26,0.76],[0.16,0.82],[0.08,0.76]
-  ],
-  '巴伐利亚': [
-    [0.30,0.68],[0.36,0.66],[0.44,0.62],[0.54,0.62],[0.62,0.64],
-    [0.68,0.68],[0.62,0.80],[0.50,0.86],[0.38,0.86],[0.28,0.80],[0.26,0.76]
+    [0.22,0.24],[0.30,0.24],[0.30,0.30],[0.22,0.30]
   ],
 
-  // ═══════════════════════ 华约（东德）═══════════════════════
-  '梅克伦堡-前波美拉尼亚': [
-    [0.48,0.08],[0.60,0.04],[0.70,0.08],[0.74,0.16],
-    [0.70,0.22],[0.62,0.24],[0.56,0.20],[0.48,0.14]
-  ],
+  // ══════════ 东部（华约） ══════════
   '勃兰登堡': [
-    [0.42,0.14],[0.48,0.14],[0.56,0.20],[0.62,0.24],[0.70,0.22],
-    [0.74,0.30],[0.72,0.40],[0.66,0.46],[0.58,0.42],[0.50,0.36],[0.44,0.24]
+    [0.58,0.26],[0.72,0.22],[0.82,0.30],[0.82,0.42],
+    [0.72,0.48],[0.60,0.46],[0.52,0.44],[0.60,0.36]
   ],
   '柏林': [
-    [0.54,0.26],[0.60,0.24],[0.62,0.30],[0.56,0.32],[0.52,0.28]
+    [0.64,0.30],[0.72,0.30],[0.72,0.36],[0.64,0.36]
   ],
   '萨克森-安哈尔特': [
-    [0.42,0.42],[0.46,0.34],[0.50,0.36],[0.58,0.42],[0.60,0.48],
-    [0.54,0.54],[0.44,0.54],[0.38,0.50],[0.34,0.46]
+    [0.60,0.46],[0.72,0.48],[0.78,0.56],[0.72,0.64],
+    [0.64,0.62],[0.68,0.52]
   ],
   '图林根': [
-    [0.18,0.58],[0.28,0.60],[0.36,0.58],[0.38,0.50],[0.44,0.54],
-    [0.44,0.62],[0.36,0.66],[0.26,0.66],[0.20,0.62]
+    [0.52,0.44],[0.60,0.46],[0.68,0.52],[0.64,0.62],
+    [0.52,0.64],[0.44,0.58],[0.50,0.54]
   ],
   '萨克森': [
-    [0.44,0.54],[0.54,0.54],[0.60,0.48],[0.66,0.46],[0.70,0.56],
-    [0.64,0.62],[0.54,0.62],[0.44,0.62]
+    [0.64,0.62],[0.72,0.64],[0.78,0.56],[0.82,0.62],
+    [0.78,0.72],[0.68,0.74],[0.60,0.68]
+  ],
+
+  // ══════════ 中部 ══════════
+  '北莱茵-威斯特法伦': [
+    [0.02,0.30],[0.10,0.22],[0.14,0.32],[0.24,0.42],
+    [0.20,0.52],[0.10,0.56],[0.00,0.50],[0.00,0.40]
+  ],
+  '黑森': [
+    [0.24,0.42],[0.38,0.46],[0.52,0.44],[0.50,0.54],
+    [0.36,0.58],[0.22,0.56],[0.20,0.52]
+  ],
+
+  // ══════════ 南部 ══════════
+  '莱茵兰-普法尔茨': [
+    [0.00,0.50],[0.10,0.56],[0.20,0.52],[0.22,0.56],
+    [0.18,0.64],[0.10,0.68],[0.00,0.64]
+  ],
+  '萨尔': [
+    [0.00,0.64],[0.10,0.68],[0.08,0.76],[0.00,0.76]
+  ],
+  '巴登-符腾堡': [
+    [0.10,0.68],[0.18,0.64],[0.22,0.56],[0.36,0.58],
+    [0.42,0.66],[0.38,0.78],[0.26,0.84],[0.14,0.80],[0.08,0.76]
+  ],
+  '巴伐利亚': [
+    [0.36,0.58],[0.44,0.58],[0.52,0.64],[0.60,0.68],
+    [0.68,0.74],[0.72,0.84],[0.62,0.92],[0.48,0.94],
+    [0.36,0.90],[0.38,0.78],[0.42,0.66]
   ]
 };
 
@@ -322,20 +315,39 @@ const STATE_SIDE = {
   '萨克森-安哈尔特':'warsaw','萨克森':'warsaw','图林根':'warsaw'
 };
 
+/* ★★★ 显式邻接表（不再用距离计算） ★★★ */
+const ADJACENCY = {
+  '石勒苏益格-荷尔斯泰因': ['汉堡','梅克伦堡-前波美拉尼亚','下萨克森'],
+  '汉堡': ['石勒苏益格-荷尔斯泰因','下萨克森'],
+  '不来梅': ['下萨克森'],
+  '下萨克森': ['石勒苏益格-荷尔斯泰因','汉堡','不来梅','北莱茵-威斯特法伦','黑森','图林根','萨克森-安哈尔特','勃兰登堡','梅克伦堡-前波美拉尼亚'],
+  '北莱茵-威斯特法伦': ['下萨克森','黑森','莱茵兰-普法尔茨'],
+  '黑森': ['下萨克森','北莱茵-威斯特法伦','莱茵兰-普法尔茨','巴登-符腾堡','巴伐利亚','图林根'],
+  '莱茵兰-普法尔茨': ['北莱茵-威斯特法伦','黑森','巴登-符腾堡','萨尔'],
+  '萨尔': ['莱茵兰-普法尔茨'],
+  '巴登-符腾堡': ['莱茵兰-普法尔茨','黑森','巴伐利亚'],
+  '巴伐利亚': ['巴登-符腾堡','黑森','图林根','萨克森'],
+  '梅克伦堡-前波美拉尼亚': ['石勒苏益格-荷尔斯泰因','下萨克森','勃兰登堡'],
+  '勃兰登堡': ['梅克伦堡-前波美拉尼亚','下萨克森','萨克森-安哈尔特','柏林'],
+  '柏林': ['勃兰登堡'],
+  '萨克森-安哈尔特': ['下萨克森','勃兰登堡','图林根','萨克森'],
+  '图林根': ['下萨克森','黑森','巴伐利亚','萨克森-安哈尔特','萨克森'],
+  '萨克森': ['勃兰登堡','萨克森-安哈尔特','图林根','巴伐利亚']
+};
+
 const NATO_CITIES = [
   { name:'波恩',     state:'北莱茵-威斯特法伦', x:.08, y:.42 },
-  { name:'汉堡',     state:'汉堡',             x:.33, y:.18 },
-  { name:'法兰克福', state:'黑森',             x:.28, y:.50 },
-  { name:'斯图加特', state:'巴登-符腾堡',      x:.20, y:.70 },
-  { name:'慕尼黑',   state:'巴伐利亚',         x:.42, y:.74 },
+  { name:'汉堡',     state:'汉堡',             x:.41, y:.19 },
+  { name:'法兰克福', state:'黑森',             x:.36, y:.50 },
+  { name:'斯图加特', state:'巴登-符腾堡',      x:.22, y:.72 },
+  { name:'慕尼黑',   state:'巴伐利亚',         x:.50, y:.78 },
 ];
-
 const WARSAW_CITIES = [
-  { name:'东柏林',   state:'柏林',             x:.56, y:.28 },
-  { name:'罗斯托克', state:'梅克伦堡-前波美拉尼亚', x:.58, y:.10 },
-  { name:'马格德堡', state:'萨克森-安哈尔特',  x:.42, y:.44 },
-  { name:'莱比锡',   state:'萨克森',           x:.52, y:.55 },
-  { name:'德累斯顿', state:'萨克森',           x:.62, y:.58 },
+  { name:'东柏林',   state:'柏林',             x:.68, y:.33 },
+  { name:'罗斯托克', state:'梅克伦堡-前波美拉尼亚', x:.60, y:.10 },
+  { name:'马格德堡', state:'萨克森-安哈尔特',  x:.68, y:.52 },
+  { name:'莱比锡',   state:'萨克森',           x:.68, y:.65 },
+  { name:'德累斯顿', state:'萨克森',           x:.76, y:.68 },
 ];
 
 const UNIT_STATS = {
@@ -451,11 +463,10 @@ function stateAt(mx,my){
   return null;
 }
 
+/* ★★★ 用邻接表判断相邻，不再用距离 ★★★ */
 function isAdjacent(s1,s2){
-  if(!STATE_POLYGONS[s1] || !STATE_POLYGONS[s2]) return false;
-  if(s1===s2) return false;
-  const c1=stateCenter[s1], c2=stateCenter[s2];
-  return Math.hypot(c1.x-c2.x, c1.y-c2.y) < 150;
+  if(!ADJACENCY[s1]) return false;
+  return ADJACENCY[s1].includes(s2);
 }
 
 function newGame(){
@@ -514,8 +525,8 @@ function drawStates(){
       i ? ctx.lineTo(x,y) : ctx.moveTo(x,y);
     });
     ctx.closePath();
-    if(side==='nato') ctx.fillStyle='rgba(37,99,235,.22)';
-    else if(side==='warsaw') ctx.fillStyle='rgba(185,28,28,.22)';
+    if(side==='nato') ctx.fillStyle='rgba(37,99,235,.24)';
+    else if(side==='warsaw') ctx.fillStyle='rgba(185,28,28,.24)';
     else ctx.fillStyle='rgba(100,100,120,.12)';
     ctx.fill();
     const fort = fortifications[s] || 0;
@@ -563,15 +574,15 @@ function drawCities(){
   WARSAW_CITIES.forEach(drawCity);
 }
 
+/* ★★★ 前线（虚线）：只连接邻接表中真正接壤的州 ★★★ */
 function drawFront(){
   ctx.save();
   ctx.lineWidth = 3.5; ctx.lineCap = 'round'; ctx.setLineDash([8,5]);
-  for(let i=0;i<stateList.length;i++){
-    for(let j=i+1;j<stateList.length;j++){
-      const s1=stateList[i], s2=stateList[j];
+  for(const s1 of stateList){
+    for(const s2 of (ADJACENCY[s1] || [])){
+      if(s1 > s2) continue;
       const c1=control[s1], c2=control[s2];
-      if(!c1||!c2||c1===c2) continue;
-      if(!isAdjacent(s1,s2)) continue;
+      if(!c1 || !c2 || c1 === c2) continue;
       const p1=stateCenter[s1], p2=stateCenter[s2];
       ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y);
       ctx.strokeStyle = c1==='nato' ? '#5da2ff' : '#ff6b6b';
@@ -693,8 +704,7 @@ function computeReachable(u){
     if(steps > mc || visited.has(s)) return;
     visited.add(s);
     if(steps > 0) reach.add(s);
-    const neighbors = stateList.filter(s2 => isAdjacent(s,s2));
-    for(const n of neighbors){
+    for(const n of (ADJACENCY[s] || [])){
       if(unitAt(n)) continue;
       dfs(n, steps+1);
     }
@@ -733,7 +743,6 @@ async function attack(a, b){
     function step(now){
       const p = Math.min(1, (now - startTime) / duration);
       const eased = 1 - Math.pow(1 - p, 2.5);
-
       state.attackAnim = {
         unitId: a.id,
         x: from.x + (tx - from.x) * eased,
@@ -744,7 +753,6 @@ async function attack(a, b){
       if(p > 0.6 && !impacted){
         impacted = true;
         state.hitFlash = { unitId: b.id, t: 1 };
-
         const aPow = a.atk * (a.hp/a.maxHp) * (0.75 + Math.random()*0.5);
         const dPow = effectiveDef(b) * (b.hp/b.maxHp) * (0.75 + Math.random()*0.5);
         const ratio = aPow / Math.max(1, dPow);
@@ -752,7 +760,6 @@ async function attack(a, b){
         const dmgAtk = Math.max(0, Math.min(a.hp-1, Math.round(1.6 / Math.max(0.3, ratio))));
         b.hp -= dmgDef;
         a.hp -= dmgAtk;
-
         let txt = `<b>${sideName(a.side)}</b> ${a.name} → ${b.name}　敌损 ${dmgDef}`;
         if(dmgAtk) txt += `，己损 ${dmgAtk}`;
         if(b.hp <= 0){ removeUnit(b); control[b.state] = a.side; txt += `　<span style="color:#f87171">【歼灭】</span>`; }
@@ -762,7 +769,6 @@ async function attack(a, b){
 
       if(state.hitFlash) state.hitFlash.t = Math.max(0, state.hitFlash.t - 0.08);
       render();
-
       if(p < 1){ requestAnimationFrame(step); }
       else {
         setTimeout(()=>{
