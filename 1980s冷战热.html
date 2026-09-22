@@ -1,84 +1,1281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>冷战热斗 · 1980 欧洲战场</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;overflow:hidden;background:#05080f;color:#dbe4f0;
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+
+  .game{display:grid;grid-template-columns:180px 1fr 180px;gap:8px;width:100vw;height:100vh;
+    padding:8px;box-sizing:border-box;overflow:hidden}
+  .panel{border-radius:10px;padding:10px;font-size:12px;border:1px solid;backdrop-filter:blur(4px);
+    overflow-y:auto;box-sizing:border-box;min-height:0}
+  .stage{min-width:0;min-height:0;display:flex;flex-direction:column;gap:8px}
+
+  @media screen and (max-width:768px){
+    .game{grid-template-columns:1fr;grid-template-rows:auto 1fr auto;overflow-y:auto}
+    .panel{width:100%;max-height:110px;display:flex;flex-direction:row;
+      overflow-x:auto;overflow-y:hidden;gap:10px;padding:6px 10px}
+    .panel h2{display:none}
+    .panel .sect{margin:0;min-width:130px}
+    .panel .sect h3{font-size:10px;margin-bottom:3px}
+    .panel ul li{padding:2px 5px;font-size:10px}
+    .panel .stat{font-size:11px;padding:1px 0}
+    .stage{height:70vh;flex:1 1 auto}
+  }
+
+  .panel.nato{background:linear-gradient(180deg,#0d1c3a,#08101f);border-color:#274a82;box-shadow:0 0 24px rgba(30,80,200,.25)}
+  .panel.warsaw{background:linear-gradient(180deg,#3a0f14,#1c070a);border-color:#7a2530;box-shadow:0 0 24px rgba(200,40,40,.25)}
+  .panel h2{font-size:12px;letter-spacing:2px;padding-bottom:8px;margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,.12)}
+  .panel.nato h2{color:#7cb3ff}.panel.warsaw h2{color:#ff8a8a}
+  .sect{margin-bottom:12px}
+  .sect h3{font-size:11px;color:#8fa3bf;letter-spacing:1px;margin-bottom:6px;font-weight:600}
+  .panel.warsaw .sect h3{color:#bf9090}
+  ul{list-style:none}
+  li{padding:4px 7px;margin-bottom:3px;border-radius:4px;background:rgba(255,255,255,.05);font-size:11px;display:flex;justify-content:space-between;gap:6px;line-height:1.4}
+  li .t{opacity:.5;font-size:10px;flex-shrink:0}
+  li.done{opacity:.3;text-decoration:line-through}
+  li.ready{background:rgba(255,255,255,.14);box-shadow:inset 0 0 0 1px rgba(255,255,255,.15)}
+  .stat{display:flex;justify-content:space-between;padding:3px 0;color:#a9bbd4}
+  .stat b{color:#e8f0ff;font-weight:600}
+  .bar{height:5px;border-radius:3px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:5px}
+  .bar i{display:block;height:100%;border-radius:3px;transition:width .3s}
+  .panel.nato .bar i{background:linear-gradient(90deg,#2563eb,#60a5fa)}
+  .panel.warsaw .bar i{background:linear-gradient(90deg,#b91c1c,#f87171)}
+
+  .hud{display:flex;gap:8px;align-items:center;padding:8px 12px;background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.08);border-radius:9px;font-size:12px;flex-wrap:wrap;flex:0 0 auto}
+  .badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:1px}
+  .badge.nato{background:rgba(37,99,235,.28);color:#8fc0ff;box-shadow:inset 0 0 0 1px #2f5fa8}
+  .badge.warsaw{background:rgba(185,28,28,.28);color:#ff9c9c;box-shadow:inset 0 0 0 1px #8b2b2b}
+  .hud .sp{flex:1}
+  button{background:#2563eb;color:#fff;border:0;padding:7px 12px;border-radius:6px;font-size:12px;
+    cursor:pointer;font-weight:700;letter-spacing:1px;transition:.15s;font-family:inherit}
+  button:hover{filter:brightness(1.18)}
+  button.ghost{background:rgba(255,255,255,.1);padding:7px 12px}
+  button:disabled{opacity:.35;cursor:not-allowed}
+  button.fort-btn{background:linear-gradient(135deg,#1e40af,#3b82f6)}
+  .nuke-btn{position:relative;background:linear-gradient(135deg,#7f1d1d,#dc2626 60%,#f97316);
+    color:#fff;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:800;letter-spacing:2px;
+    border:0;cursor:pointer;font-family:inherit;text-shadow:0 0 8px rgba(255,255,255,.6);
+    animation:nukePulse 1.6s ease-in-out infinite}
+  .nuke-btn::before{content:'';position:absolute;inset:-2px;border-radius:9px;
+    background:conic-gradient(from 0deg,#dc2626,#f59e0b,#dc2626,#f59e0b,#dc2626);
+    z-index:-1;filter:blur(6px);opacity:.7;animation:spin 3s linear infinite}
+  .nuke-btn:disabled{animation:none;opacity:.4}
+  .nuke-btn:disabled::before{animation:none}
+  @keyframes nukePulse{0%,100%{box-shadow:0 0 14px rgba(220,38,38,.7);transform:scale(1)}
+    50%{box-shadow:0 0 32px rgba(255,80,50,1);transform:scale(1.05)}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  canvas{display:block;flex:1 1 auto;min-height:0;width:100%;border-radius:10px;cursor:pointer;
+    box-shadow:0 8px 40px rgba(0,0,0,.7);background:#0a0f18;touch-action:none}
+
+  #log{flex:0 0 auto;height:60px;overflow-y:auto;background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.07);
+    border-radius:8px;padding:6px 10px;font-size:11px;color:#8fa3bf;line-height:1.6;font-family:ui-monospace,monospace}
+  #log b{color:#dbe4f0;font-weight:600}
+
+  .tip{position:fixed;pointer-events:none;background:rgba(6,12,22,.96);border:1px solid rgba(100,150,220,.5);
+    border-radius:8px;padding:10px 14px;font-size:11px;line-height:1.6;opacity:0;transition:opacity .12s;z-index:999;white-space:nowrap;
+    box-shadow:0 8px 30px rgba(0,0,0,.8);min-width:180px}
+  .tip.on{opacity:1}
+  .tip .n{font-weight:700;font-size:13px;margin-bottom:5px;padding-right:18px}
+  .tip .close-btn{position:absolute;top:5px;right:7px;width:20px;height:20px;line-height:20px;text-align:center;
+    background:rgba(220,38,38,.85);color:#fff;border-radius:50%;font-size:12px;font-weight:700;cursor:pointer;
+    transition:.15s;user-select:none;box-shadow:0 0 8px rgba(220,38,38,.6);pointer-events:auto}
+  .tip .close-btn:hover{background:#ef4444;transform:scale(1.15)}
+  .tip .tip-content{padding-right:16px}
+
+  #start-screen{position:fixed;inset:0;z-index:1000;
+    background:radial-gradient(circle at 20% 30%,rgba(37,99,235,.20),transparent 50%),
+      radial-gradient(circle at 80% 70%,rgba(185,28,28,.20),transparent 50%),
+      linear-gradient(160deg,#050810,#0a1220 50%,#050810);
+    display:flex;align-items:center;justify-content:center;transition:opacity .5s;overflow:hidden}
+  #start-screen.hide{opacity:0;pointer-events:none}
+  .start-inner{text-align:center;padding:40px 30px;max-width:760px;width:92%;position:relative;z-index:2;animation:fadeIn .9s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+  .title-block h1{font-size:70px;font-weight:900;letter-spacing:10px;
+    background:linear-gradient(180deg,#fff 0%,#a5c4ea 55%,#4a6fa8 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 0 70px rgba(120,180,255,.55);margin-bottom:6px;line-height:1.1}
+  .en-title{font-size:14px;letter-spacing:9px;color:#6b83a8;font-weight:600;margin-bottom:14px}
+  .subtitle{font-size:13px;color:#8fa3bf;letter-spacing:4px}
+  .divider{width:90px;height:1px;background:linear-gradient(90deg,transparent,#4a6fa8,transparent);margin:26px auto}
+  .prompt{font-size:14px;letter-spacing:5px;color:#a9bbd4;margin-bottom:28px}
+  .factions{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:34px}
+  .faction{position:relative;padding:26px 18px;border-radius:12px;border:1.5px solid;cursor:pointer;
+    transition:all .28s ease;color:#dbe4f0;font-family:inherit;text-align:center;overflow:hidden}
+  .faction.nato{border-color:rgba(59,130,246,.42);background:linear-gradient(180deg,rgba(37,99,235,.10),rgba(37,99,235,.02))}
+  .faction.nato:hover{border-color:#3b82f6;background:linear-gradient(180deg,rgba(37,99,235,.24),rgba(37,99,235,.06));
+    box-shadow:0 0 46px rgba(37,99,235,.35);transform:translateY(-4px)}
+  .faction.warsaw{border-color:rgba(239,68,68,.42);background:linear-gradient(180deg,rgba(185,28,28,.10),rgba(185,28,28,.02))}
+  .faction.warsaw:hover{border-color:#ef4444;background:linear-gradient(180deg,rgba(185,28,28,.24),rgba(185,28,28,.06));
+    box-shadow:0 0 46px rgba(185,28,28,.35);transform:translateY(-4px)}
+  .faction .flag{font-size:44px;margin-bottom:10px;line-height:1}
+  .faction.nato .flag{color:#60a5fa;text-shadow:0 0 22px rgba(96,165,250,.9)}
+  .faction.warsaw .flag{color:#f87171;text-shadow:0 0 22px rgba(248,113,113,.9)}
+  .faction .fname{font-size:24px;font-weight:800;letter-spacing:5px;margin-bottom:3px}
+  .faction.nato .fname{color:#93c5fd}.faction.warsaw .fname{color:#fca5a5}
+  .faction .fen{font-size:10px;letter-spacing:3px;color:#6b83a8;margin-bottom:14px}
+  .faction .flist{font-size:11px;line-height:1.75;color:#8fa3bf}
+  .footer-note{font-size:11px;color:#556b8a;line-height:1.9;letter-spacing:1px}
+
+  #end-screen{position:fixed;inset:0;z-index:1100;background:rgba(3,6,12,.94);
+    display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+  #end-screen.show{display:flex}
+  .end-box{text-align:center;padding:50px 60px;border-radius:16px;
+    border:1px solid rgba(255,255,255,.15);background:linear-gradient(180deg,rgba(20,30,50,.9),rgba(8,12,22,.95));
+    box-shadow:0 20px 80px rgba(0,0,0,.8);animation:fadeIn .6s ease}
+  .end-box h2{font-size:44px;font-weight:900;letter-spacing:8px;margin-bottom:14px}
+  .end-box p{font-size:14px;color:#a9bbd4;line-height:1.9;margin-bottom:28px;max-width:520px}
+</style>
+</head>
+<body>
+
+<div id="start-screen">
+  <div class="start-inner">
+    <div class="title-block">
+      <h1>冷战热斗</h1>
+      <div class="en-title">TWILIGHT STRUGGLE</div>
+      <div class="subtitle">1980 · 欧洲战场 · 60 回合全面战争</div>
+    </div>
+    <div class="divider"></div>
+    <p class="prompt">选 择 你 的 阵 营</p>
+    <div class="factions">
+      <button class="faction nato" onclick="startGame('nato')">
+        <div class="flag">★</div>
+        <div class="fname">北约</div>
+        <div class="fen">NATO</div>
+        <div class="flist">西德 · 美国 · 英国<br>荷兰 · 比利时 · 加拿大</div>
+      </button>
+      <button class="faction warsaw" onclick="startGame('warsaw')">
+        <div class="flag">☭</div>
+        <div class="fname">华约</div>
+        <div class="fen">WARSAW PACT</div>
+        <div class="flist">苏联 · 东德 · 波兰<br>捷克斯洛伐克 · 匈牙利</div>
+      </button>
+    </div>
+    <div class="footer-note">
+      1980年，中欧的铁幕两侧，超过 100 万军队对峙。<br>
+      60 回合内，进攻方若无法突破防线，将面对核选项。
+    </div>
+  </div>
+</div>
+
+<div id="end-screen">
+  <div class="end-box">
+    <h2 id="end-title">—</h2>
+    <p id="end-desc">—</p>
+    <button onclick="location.reload()">重新开战</button>
+  </div>
+</div>
+
+<div class="game">
+  <aside class="panel nato">
+    <h2>NATO / 北约</h2>
+    <div class="sect">
+      <h3>资源 · RESOURCES</h3>
+      <div class="stat"><span>工事点</span><b id="nato-fortp">0</b></div>
+      <div class="stat"><span>核打击</span><b id="nato-nuke">—</b></div>
+    </div>
+    <div class="sect">
+      <h3>增援区 · REINFORCEMENT</h3>
+      <ul id="nato-reinf"></ul>
+    </div>
+    <div class="sect">
+      <h3>兵力 · ORDER OF BATTLE</h3>
+      <div class="stat"><span>陆军单位</span><b id="nato-army">0</b></div>
+      <div class="stat"><span>空军单位</span><b id="nato-air">0</b></div>
+      <div class="stat"><span>控制区域</span><b id="nato-terr">0</b></div>
+      <div class="bar"><i id="nato-bar" style="width:0%"></i></div>
+    </div>
+  </aside>
+
+  <main class="stage">
+    <div class="hud">
+      <span id="turn-label" style="font-weight:700">回合 1 / 60</span>
+      <span id="side-badge" class="badge nato">北约 · 你的回合</span>
+      <span class="sp"></span>
+      <button id="fort-btn" class="fort-btn">修建工事 (2)</button>
+      <button id="nuke-btn" class="nuke-btn" disabled>战术与打击</button>
+      <button id="end-turn">结束回合</button>
+      <button id="reset" class="ghost">重开</button>
+    </div>
+    <canvas id="map"></canvas>
+    <div id="log"></div>
+  </main>
+
+  <aside class="panel warsaw">
+    <h2>WARSAW / 华约</h2>
+    <div class="sect">
+      <h3>资源 · RESOURCES</h3>
+      <div class="stat"><span>工事点</span><b id="warsaw-fortp">0</b></div>
+      <div class="stat"><span>核打击</span><b id="warsaw-nuke">—</b></div>
+    </div>
+    <div class="sect">
+      <h3>增援区 · REINFORCEMENT</h3>
+      <ul id="warsaw-reinf"></ul>
+    </div>
+    <div class="sect">
+      <h3>兵力 · ORDER OF BATTLE</h3>
+      <div class="stat"><span>陆军单位</span><b id="warsaw-army">0</b></div>
+      <div class="stat"><span>空军单位</span><b id="warsaw-air">0</b></div>
+      <div class="stat"><span>控制区域</span><b id="warsaw-terr">0</b></div>
+      <div class="bar"><i id="warsaw-bar" style="width:0%"></i></div>
+    </div>
+  </aside>
+</div>
+
+<div class="tip" id="tip">
+  <div class="close-btn" id="tip-close">✕</div>
+  <div class="tip-content" id="tip-content"></div>
+</div>
+
+<script>
+/* =========================================================
+   ★★★ 共享顶点的德国州多边形（无重叠） ★★★
+   所有相邻州共享完全相同的坐标值。
+   ========================================================= */
+const STATE_AREA = {
+  '石勒苏益格-荷尔斯泰因':15800,'汉堡':755,'不来梅':419,'下萨克森':47400,
+  '北莱茵-威斯特法伦':34100,'黑森':21100,'莱茵兰-普法尔茨':19900,
+  '巴登-符腾堡':35751,'巴伐利亚':70551,'萨尔':2570,
+  '梅克伦堡-前波美拉尼亚':23200,'勃兰登堡':29479,
+  '萨克森-安哈尔特':20445,'萨克森':18400,'图林根':16200,'柏林':891
+};
+
 const STATE_POLYGONS = {
-  // ══════════ 北部 ══════════
+  // ═══════════════════════ 北约（西德）═══════════════════════
   '石勒苏益格-荷尔斯泰因': [
-    [.20,.05],[.32,.03],[.42,.06],[.40,.15],[.30,.18],[.20,.14]
+    [0.28,0.04],[0.42,0.02],[0.48,0.08],[0.42,0.14],[0.28,0.14],[0.14,0.14]
   ],
   '汉堡': [
-    [.29,.17],[.38,.16],[.40,.21],[.33,.23],[.28,.20]
-  ],
-  '不来梅': [
-    [.17,.20],[.24,.19],[.26,.24],[.20,.26],[.15,.23]
+    [0.28,0.14],[0.38,0.14],[0.38,0.20],[0.28,0.20]
   ],
   '下萨克森': [
-    [.10,.12],[.20,.14],[.30,.18],[.40,.15],[.42,.28],
-    [.38,.40],[.26,.46],[.12,.44],[.06,.34],[.06,.18]
+    [0.14,0.14],[0.28,0.14],[0.28,0.20],[0.38,0.20],[0.38,0.14],[0.42,0.14],
+    [0.44,0.24],[0.46,0.34],[0.42,0.42],[0.34,0.46],[0.24,0.44],
+    [0.22,0.38],[0.22,0.32],[0.16,0.32],[0.16,0.38],
+    [0.06,0.26],[0.14,0.14]
   ],
-
-  // ══════════ 西部 ══════════
+  '不来梅': [
+    [0.16,0.32],[0.22,0.32],[0.22,0.38],[0.16,0.38]
+  ],
   '北莱茵-威斯特法伦': [
-    [.04,.30],[.10,.34],[.12,.44],[.16,.52],[.10,.60],
-    [.02,.58],[.00,.44],[.00,.34]
+    [0.06,0.26],[0.16,0.38],[0.24,0.44],[0.20,0.50],
+    [0.14,0.54],[0.06,0.54],[0.00,0.46],[0.00,0.34]
   ],
   '黑森': [
-    [.16,.52],[.26,.46],[.38,.40],[.42,.46],[.42,.54],
-    [.32,.60],[.20,.60],[.10,.60]
+    [0.24,0.44],[0.34,0.46],[0.38,0.50],[0.36,0.58],[0.28,0.60],
+    [0.18,0.58],[0.14,0.54],[0.20,0.50]
   ],
   '莱茵兰-普法尔茨': [
-    [.00,.58],[.02,.58],[.10,.60],[.16,.66],[.12,.72],
-    [.02,.72],[.00,.66]
+    [0.00,0.46],[0.06,0.54],[0.14,0.54],[0.18,0.58],
+    [0.16,0.66],[0.08,0.72],[0.00,0.66]
   ],
   '萨尔': [
-    [.00,.66],[.02,.72],[.04,.78],[.00,.80],[-.02,.72]
+    [0.00,0.66],[0.08,0.72],[0.06,0.78],[0.00,0.78]
   ],
-
-  // ══════════ 南部 ══════════
   '巴登-符腾堡': [
-    [.02,.72],[.12,.72],[.16,.66],[.20,.60],[.30,.62],
-    [.32,.72],[.26,.82],[.14,.84],[.06,.78]
+    [0.08,0.72],[0.16,0.66],[0.18,0.58],[0.28,0.60],
+    [0.30,0.68],[0.26,0.76],[0.16,0.82],[0.08,0.76]
   ],
   '巴伐利亚': [
-    [.32,.60],[.42,.54],[.50,.58],[.56,.68],[.52,.80],
-    [.40,.88],[.28,.84],[.26,.82],[.32,.72]
+    [0.30,0.68],[0.36,0.66],[0.44,0.62],[0.54,0.62],[0.62,0.64],
+    [0.68,0.68],[0.62,0.80],[0.50,0.86],[0.38,0.86],[0.28,0.80],[0.26,0.76]
   ],
 
-  // ══════════ 东部（华约） ══════════
+  // ═══════════════════════ 华约（东德）═══════════════════════
   '梅克伦堡-前波美拉尼亚': [
-    [.44,.06],[.56,.04],[.68,.08],[.72,.16],[.66,.22],
-    [.56,.24],[.46,.20],[.42,.12]
+    [0.48,0.08],[0.60,0.04],[0.70,0.08],[0.74,0.16],
+    [0.70,0.22],[0.62,0.24],[0.56,0.20],[0.48,0.14]
   ],
   '勃兰登堡': [
-    [.42,.12],[.46,.20],[.56,.24],[.66,.22],[.72,.32],
-    [.72,.44],[.62,.48],[.52,.46],[.44,.36],[.40,.26]
+    [0.42,0.14],[0.48,0.14],[0.56,0.20],[0.62,0.24],[0.70,0.22],
+    [0.74,0.30],[0.72,0.40],[0.66,0.46],[0.58,0.42],[0.50,0.36],[0.44,0.24]
   ],
   '柏林': [
-    [.46,.30],[.52,.28],[.54,.34],[.48,.36],[.44,.34]
+    [0.54,0.26],[0.60,0.24],[0.62,0.30],[0.56,0.32],[0.52,0.28]
   ],
   '萨克森-安哈尔特': [
-    [.40,.26],[.44,.36],[.52,.46],[.44,.52],[.34,.52],
-    [.30,.44],[.34,.34]
+    [0.42,0.42],[0.46,0.34],[0.50,0.36],[0.58,0.42],[0.60,0.48],
+    [0.54,0.54],[0.44,0.54],[0.38,0.50],[0.34,0.46]
   ],
   '图林根': [
-    [.30,.44],[.34,.52],[.44,.52],[.44,.60],[.34,.64],
-    [.22,.62],[.20,.54]
+    [0.18,0.58],[0.28,0.60],[0.36,0.58],[0.38,0.50],[0.44,0.54],
+    [0.44,0.62],[0.36,0.66],[0.26,0.66],[0.20,0.62]
   ],
   '萨克森': [
-    [.44,.52],[.52,.46],[.62,.48],[.66,.58],[.60,.66],
-    [.48,.64],[.44,.60]
+    [0.44,0.54],[0.54,0.54],[0.60,0.48],[0.66,0.46],[0.70,0.56],
+    [0.64,0.62],[0.54,0.62],[0.44,0.62]
   ]
 };
 
+const STATE_SIDE = {
+  '石勒苏益格-荷尔斯泰因':'nato','汉堡':'nato','不来梅':'nato','下萨克森':'nato',
+  '北莱茵-威斯特法伦':'nato','黑森':'nato','莱茵兰-普法尔茨':'nato',
+  '巴登-符腾堡':'nato','巴伐利亚':'nato','萨尔':'nato','柏林':'nato',
+  '梅克伦堡-前波美拉尼亚':'warsaw','勃兰登堡':'warsaw',
+  '萨克森-安哈尔特':'warsaw','萨克森':'warsaw','图林根':'warsaw'
+};
+
 const NATO_CITIES = [
-  { name:'波恩',     state:'北莱茵-威斯特法伦', x:.08, y:.44 },
-  { name:'汉堡',     state:'汉堡',             x:.34, y:.20 },
-  { name:'法兰克福', state:'黑森',             x:.26, y:.52 },
-  { name:'斯图加特', state:'巴登-符腾堡',      x:.18, y:.72 },
+  { name:'波恩',     state:'北莱茵-威斯特法伦', x:.08, y:.42 },
+  { name:'汉堡',     state:'汉堡',             x:.33, y:.18 },
+  { name:'法兰克福', state:'黑森',             x:.28, y:.50 },
+  { name:'斯图加特', state:'巴登-符腾堡',      x:.20, y:.70 },
   { name:'慕尼黑',   state:'巴伐利亚',         x:.42, y:.74 },
 ];
 
 const WARSAW_CITIES = [
-  { name:'东柏林',   state:'柏林',             x:.49, y:.32 },
-  { name:'罗斯托克', state:'梅克伦堡-前波美拉尼亚', x:.56, y:.10 },
-  { name:'马格德堡', state:'萨克森-安哈尔特',  x:.40, y:.42 },
-  { name:'莱比锡',   state:'萨克森',           x:.54, y:.54 },
-  { name:'德累斯顿', state:'萨克森',           x:.62, y:.56 },
+  { name:'东柏林',   state:'柏林',             x:.56, y:.28 },
+  { name:'罗斯托克', state:'梅克伦堡-前波美拉尼亚', x:.58, y:.10 },
+  { name:'马格德堡', state:'萨克森-安哈尔特',  x:.42, y:.44 },
+  { name:'莱比锡',   state:'萨克森',           x:.52, y:.55 },
+  { name:'德累斯顿', state:'萨克森',           x:.62, y:.58 },
 ];
+
+const UNIT_STATS = {
+  armor: { name:'装甲师', atk:18, def:12, mov:2, hp:5, sym:'装' },
+  mech:  { name:'机械化师', atk:12, def:10, mov:2, hp:4, sym:'机' },
+  inf:   { name:'步兵师', atk:6, def:8, mov:1, hp:3, sym:'步' },
+  air:   { name:'空军联队', atk:20, def:6, mov:3, hp:2, sym:'空' }
+};
+
+const INITIAL_UNITS = [
+  { side:'nato', type:'armor', name:'西德第1装甲师', state:'下萨克森' },
+  { side:'nato', type:'armor', name:'西德第3装甲师', state:'下萨克森' },
+  { side:'nato', type:'mech',  name:'西德第1摩步师', state:'北莱茵-威斯特法伦' },
+  { side:'nato', type:'armor', name:'西德第2装甲师', state:'黑森' },
+  { side:'nato', type:'armor', name:'西德第5装甲师', state:'莱茵兰-普法尔茨' },
+  { side:'nato', type:'mech',  name:'西德第4摩步师', state:'巴登-符腾堡' },
+  { side:'nato', type:'armor', name:'美第3装甲师', state:'黑森' },
+  { side:'nato', type:'inf',   name:'美第8步兵师', state:'巴伐利亚' },
+  { side:'nato', type:'armor', name:'英第1装甲师', state:'北莱茵-威斯特法伦' },
+  { side:'nato', type:'armor', name:'英第4装甲师', state:'下萨克森' },
+  { side:'nato', type:'inf',   name:'比第1步兵师', state:'北莱茵-威斯特法伦' },
+  { side:'nato', type:'mech',  name:'荷第1摩步师', state:'下萨克森' },
+  { side:'nato', type:'air',   name:'北约第2战术空军', state:'巴伐利亚' },
+  { side:'nato', type:'air',   name:'美第9战术空军', state:'莱茵兰-普法尔茨' },
+  { side:'warsaw', type:'armor', name:'苏近卫第1坦克集团军', state:'萨克森' },
+  { side:'warsaw', type:'armor', name:'苏近卫第2集团军', state:'梅克伦堡-前波美拉尼亚' },
+  { side:'warsaw', type:'mech',  name:'苏近卫第8集团军', state:'图林根' },
+  { side:'warsaw', type:'armor', name:'苏近卫第20集团军', state:'勃兰登堡' },
+  { side:'warsaw', type:'armor', name:'苏第3突击集团军', state:'萨克森-安哈尔特' },
+  { side:'warsaw', type:'armor', name:'东德第7装甲师', state:'勃兰登堡' },
+  { side:'warsaw', type:'mech',  name:'东德第11摩步师', state:'萨克森' },
+  { side:'warsaw', type:'inf',   name:'东德第1摩步师', state:'图林根' },
+  { side:'warsaw', type:'air',   name:'苏第16航空集团军', state:'勃兰登堡' }
+];
+
+const REINFORCEMENTS = {
+  nato: [
+    { turn:2, type:'air',   name:'英第1航空队' },
+    { turn:4, type:'armor', name:'加拿大第4旅' },
+    { turn:6, type:'mech',  name:'法第3装甲师' },
+    { turn:9, type:'armor', name:'美第1装甲师' },
+    { turn:12,type:'air',   name:'西德空军第3联队' },
+    { turn:16,type:'armor', name:'美第2装甲师' },
+    { turn:22,type:'mech',  name:'英第3师' },
+    { turn:30,type:'armor', name:'美第4步兵师' },
+  ],
+  warsaw: [
+    { turn:2, type:'mech',  name:'苏第3集团军' },
+    { turn:4, type:'armor', name:'苏近卫第8集团军' },
+    { turn:6, type:'inf',   name:'波第1集团军' },
+    { turn:9, type:'armor', name:'苏第5坦克集团军' },
+    { turn:12,type:'air',   name:'苏第24航空集团军' },
+    { turn:16,type:'armor', name:'苏近卫第3坦克集团军' },
+    { turn:22,type:'mech',  name:'捷第1集团军' },
+    { turn:30,type:'armor', name:'苏第28集团军' },
+  ]
+};
+
+let state, control, uid, playerSide = 'nato';
+let fortifications = {};
+let fortPoints = { nato:0, warsaw:0 };
+let nukeStock  = { nato:0, warsaw:0 };
+let nukesUsed  = { nato:0, warsaw:0 };
+let nukeUnlocked = false;
+let mode = 'normal';
+let gameOver = false;
+let tipClosed = false;
+
+const canvas = document.getElementById('map');
+const ctx = canvas.getContext('2d');
+const W = 780, H = 620;
+const DPR = Math.min(window.devicePixelRatio||1, 2);
+canvas.width = W*DPR; canvas.height = H*DPR;
+ctx.scale(DPR,DPR);
+
+const stateList = Object.keys(STATE_POLYGONS);
+const stateCenter = {};
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+const sideName = s => s==='nato' ? '北约' : '华约';
+const unitAt = sName => state.units.find(u=>u.state===sName);
+
+function startGame(side){
+  playerSide = side;
+  document.getElementById('start-screen').classList.add('hide');
+  setTimeout(()=>newGame(), 400);
+}
+window.startGame = startGame;
+
+function computeCenters(){
+  stateList.forEach(s=>{
+    const pts = STATE_POLYGONS[s];
+    let cx=0, cy=0;
+    pts.forEach(p=>{ cx+=p[0]; cy+=p[1]; });
+    stateCenter[s] = { x:(cx/pts.length)*W, y:(cy/pts.length)*H };
+  });
+}
+
+function pointInPoly(px,py,poly){
+  let inside=false;
+  for(let i=0,j=poly.length-1;i<poly.length;j=i++){
+    const xi=poly[i][0]*W, yi=poly[i][1]*H;
+    const xj=poly[j][0]*W, yj=poly[j][1]*H;
+    if(((yi>py)!==(yj>py)) && (px < (xj-xi)*(py-yi)/(yj-yi)+xi))
+      inside = !inside;
+  }
+  return inside;
+}
+
+function stateAt(mx,my){
+  for(const s of stateList){
+    if(pointInPoly(mx,my,STATE_POLYGONS[s])) return s;
+  }
+  return null;
+}
+
+function isAdjacent(s1,s2){
+  if(!STATE_POLYGONS[s1] || !STATE_POLYGONS[s2]) return false;
+  if(s1===s2) return false;
+  const c1=stateCenter[s1], c2=stateCenter[s2];
+  return Math.hypot(c1.x-c2.x, c1.y-c2.y) < 150;
+}
+
+function newGame(){
+  state = { turn:1, side:'nato', units:[], selected:null, reachable:new Set(), attackAnim:null, hitFlash:null };
+  uid = 0;
+  gameOver = false;
+  mode = 'normal';
+  tipClosed = false;
+  fortifications = {};
+  fortPoints = { nato:0, warsaw:0 };
+  nukeStock  = { nato:0, warsaw:0 };
+  nukesUsed  = { nato:0, warsaw:0 };
+  nukeUnlocked = false;
+
+  computeCenters();
+
+  control = {};
+  stateList.forEach(s=>{ control[s] = STATE_SIDE[s] || null; });
+
+  for(const side in REINFORCEMENTS)
+    REINFORCEMENTS[side].forEach(r => r.spawned = false);
+
+  INITIAL_UNITS.forEach(u=>{
+    const st = UNIT_STATS[u.type];
+    state.units.push({
+      id:++uid, side:u.side, type:u.type, name:u.name,
+      state:u.state, hp:st.hp, maxHp:st.hp,
+      atk:st.atk, def:st.def, nuked:false,
+      moved:false, attacked:false
+    });
+  });
+
+  document.getElementById('log').innerHTML = '';
+  document.getElementById('end-screen').classList.remove('show');
+  log(`欢迎，指挥官。你指挥 <b>${sideName(playerSide)}</b>，敌军由 AI 控制。`);
+  log('战争爆发 —— 华约发起全线进攻。60 回合内分出胜负。');
+  log('提示：第 40 回合后解锁「战术与打击」。');
+
+  startTurn('nato');
+}
+
+function render(){
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#0a0f18';
+  ctx.fillRect(0,0,W,H);
+  drawStates(); drawCities(); drawFront(); drawHighlights(); drawUnits(); updateUI();
+}
+
+function drawStates(){
+  stateList.forEach(s=>{
+    const poly = STATE_POLYGONS[s];
+    const side = control[s];
+    ctx.beginPath();
+    poly.forEach((p,i)=>{
+      const x=p[0]*W, y=p[1]*H;
+      i ? ctx.lineTo(x,y) : ctx.moveTo(x,y);
+    });
+    ctx.closePath();
+    if(side==='nato') ctx.fillStyle='rgba(37,99,235,.22)';
+    else if(side==='warsaw') ctx.fillStyle='rgba(185,28,28,.22)';
+    else ctx.fillStyle='rgba(100,100,120,.12)';
+    ctx.fill();
+    const fort = fortifications[s] || 0;
+    ctx.strokeStyle = side==='nato' ? '#3b82f6' : side==='warsaw' ? '#ef4444' : '#555';
+    ctx.lineWidth = 1.8 + fort*1.6;
+    ctx.stroke();
+    const c = stateCenter[s];
+    ctx.fillStyle = side==='nato' ? '#8fc0ff' : side==='warsaw' ? '#ff9c9c' : '#999';
+    ctx.font = 'bold 9px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(s, c.x, c.y - 32);
+    ctx.fillStyle = 'rgba(255,255,255,.28)';
+    ctx.font = '8px monospace';
+    ctx.fillText((STATE_AREA[s]/1000).toFixed(1)+'k km²', c.x, c.y + 34);
+    if(fort > 0){
+      ctx.fillStyle = 'rgba(147,197,253,.9)';
+      ctx.font = 'bold 10px monospace';
+      ctx.fillText('🛡'.repeat(fort), c.x, c.y + 46);
+    }
+  });
+}
+
+function drawCities(){
+  const drawCity = (city) => {
+    const x = city.x*W, y = city.y*H;
+    const owner = control[city.state];
+    ctx.save();
+    ctx.fillStyle = owner==='nato' ? '#60a5fa' : owner==='warsaw' ? '#f87171' : '#888';
+    ctx.shadowColor = owner==='nato' ? '#60a5fa' : '#f87171';
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    for(let i=0;i<10;i++){
+      const r = i%2===0 ? 7 : 3;
+      const a = -Math.PI/2 + i*Math.PI/5;
+      const px = x + r*Math.cos(a), py = y + r*Math.sin(a);
+      i ? ctx.lineTo(px,py) : ctx.moveTo(px,py);
+    }
+    ctx.closePath(); ctx.fill(); ctx.restore();
+    ctx.fillStyle = owner==='nato' ? '#bfdbfe' : owner==='warsaw' ? '#fecaca' : '#aaa';
+    ctx.font = 'bold 8px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    ctx.fillText(city.name, x, y+9);
+  };
+  NATO_CITIES.forEach(drawCity);
+  WARSAW_CITIES.forEach(drawCity);
+}
+
+function drawFront(){
+  ctx.save();
+  ctx.lineWidth = 3.5; ctx.lineCap = 'round'; ctx.setLineDash([8,5]);
+  for(let i=0;i<stateList.length;i++){
+    for(let j=i+1;j<stateList.length;j++){
+      const s1=stateList[i], s2=stateList[j];
+      const c1=control[s1], c2=control[s2];
+      if(!c1||!c2||c1===c2) continue;
+      if(!isAdjacent(s1,s2)) continue;
+      const p1=stateCenter[s1], p2=stateCenter[s2];
+      ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y);
+      ctx.strokeStyle = c1==='nato' ? '#5da2ff' : '#ff6b6b';
+      ctx.shadowColor = c1==='nato' ? '#2f6fd0' : '#c03030';
+      ctx.shadowBlur = 10; ctx.stroke();
+    }
+  }
+  ctx.restore();
+}
+
+function drawHighlights(){
+  if(mode==='nuke'){ ctx.save(); ctx.fillStyle='rgba(220,38,38,.06)'; ctx.fillRect(0,0,W,H); ctx.restore(); }
+  if(mode==='fortify'){ ctx.save(); ctx.fillStyle='rgba(59,130,246,.06)'; ctx.fillRect(0,0,W,H); ctx.restore(); }
+  const sel = state.selected;
+  if(!sel) return;
+  const sc = stateCenter[sel.state];
+  if(sc){
+    ctx.beginPath(); ctx.arc(sc.x, sc.y, 30, 0, Math.PI*2);
+    ctx.strokeStyle = '#ffe066'; ctx.lineWidth = 3;
+    ctx.shadowColor = '#ffe066'; ctx.shadowBlur = 14; ctx.stroke(); ctx.shadowBlur = 0;
+  }
+  for(const s of state.reachable){
+    const c = stateCenter[s];
+    if(!c) continue;
+    ctx.beginPath(); ctx.arc(c.x, c.y, 22, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255,235,120,.18)'; ctx.fill();
+    ctx.strokeStyle = 'rgba(255,235,120,.6)'; ctx.lineWidth = 2; ctx.stroke();
+  }
+  for(const u of state.units){
+    if(u.side===sel.side) continue;
+    if(!canAttack(sel,u)) continue;
+    const c = stateCenter[u.state];
+    if(!c) continue;
+    ctx.beginPath(); ctx.arc(c.x, c.y, 28, 0, Math.PI*2);
+    ctx.strokeStyle = '#ff4d4d'; ctx.lineWidth = 3;
+    ctx.shadowColor = '#ff2d2d'; ctx.shadowBlur = 14; ctx.stroke(); ctx.shadowBlur = 0;
+  }
+}
+
+function drawUnits(){
+  const sorted = [...state.units].sort((a,b)=>(a.type==='air'?0:1)-(b.type==='air'?0:1));
+  sorted.forEach(drawUnit);
+}
+
+function drawUnit(u){
+  let x, y, sc = 1;
+  const anim = state.attackAnim;
+  if(anim && anim.unitId === u.id){
+    x = anim.x; y = anim.y; sc = anim.scale;
+  } else {
+    const c = stateCenter[u.state];
+    if(!c) return;
+    x = c.x; y = c.y;
+  }
+  const isAir = u.type==='air';
+  const w = (isAir ? 34 : 40) * sc;
+  const h = (isAir ? 24 : 28) * sc;
+  const flashing = state.hitFlash && state.hitFlash.unitId === u.id;
+
+  ctx.save();
+  ctx.shadowColor = u.nuked ? 'rgba(255,120,0,.9)' : 'rgba(0,0,0,.7)';
+  ctx.shadowBlur = u.nuked ? 16 : 8;
+  ctx.shadowOffsetY = 2;
+  let bg;
+  if(flashing) bg = '#ff5555';
+  else if(u.nuked) bg = u.side==='nato' ? '#374151' : '#3f2a2a';
+  else bg = u.side==='nato' ? (isAir?'#1e3a8a':'#1d4ed8') : (isAir?'#7f1d1d':'#b91c1c');
+  ctx.fillStyle = bg;
+  roundRect(ctx, x-w/2, y-h/2, w, h, isAir?6:4); ctx.fill(); ctx.restore();
+
+  const isSel = state.selected === u;
+  ctx.strokeStyle = isSel ? '#ffe066' : u.nuked ? '#f97316' : (u.side==='nato' ? '#93c5fd' : '#fca5a5');
+  ctx.lineWidth = isSel ? 3 : 1.8;
+  roundRect(ctx, x-w/2, y-h/2, w, h, isAir?6:4); ctx.stroke();
+
+  ctx.fillStyle = u.atk===0 ? '#6b7280' : '#dc2626';
+  ctx.beginPath(); ctx.arc(x-w/2+7, y-h/2+7, 7, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 9px monospace';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(u.atk, x-w/2+7, y-h/2+7);
+
+  ctx.fillStyle = u.def<=2 ? '#6b7280' : '#2563eb';
+  ctx.beginPath(); ctx.arc(x+w/2-7, y+h/2-7, 7, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.fillText(u.def, x+w/2-7, y+h/2-7);
+
+  ctx.fillStyle = '#fff';
+  ctx.font = `bold ${isAir?11:14}px "PingFang SC","Microsoft YaHei",sans-serif`;
+  ctx.fillText(UNIT_STATS[u.type].sym, x, y);
+
+  const bw = w-8, bh = 3, bx = x-bw/2, by = y+h/2-4;
+  ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fillRect(bx,by,bw,bh);
+  const ratio = u.hp/u.maxHp;
+  ctx.fillStyle = ratio>.5 ? '#4ade80' : ratio>.25 ? '#facc15' : '#ef4444';
+  ctx.fillRect(bx,by,bw*ratio,bh);
+
+  if(u.side===state.side && (u.moved||u.attacked)){
+    ctx.fillStyle='rgba(255,255,255,.35)';
+    ctx.beginPath(); ctx.arc(x+w/2-4, y-h/2+4, 2.6, 0, Math.PI*2); ctx.fill();
+  }
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath(); ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+}
+
+function effectiveDef(u){
+  const fort = fortifications[u.state] || 0;
+  return u.def * (1 + 0.5*fort);
+}
+
+function computeReachable(u){
+  const reach = new Set();
+  if(u.moved) return reach;
+  const mc = UNIT_STATS[u.type].mov;
+  const visited = new Set();
+  function dfs(s, steps){
+    if(steps > mc || visited.has(s)) return;
+    visited.add(s);
+    if(steps > 0) reach.add(s);
+    const neighbors = stateList.filter(s2 => isAdjacent(s,s2));
+    for(const n of neighbors){
+      if(unitAt(n)) continue;
+      dfs(n, steps+1);
+    }
+  }
+  dfs(u.state, 0);
+  reach.delete(u.state);
+  return reach;
+}
+
+function canAttack(a,b){
+  if(!a||!b) return false;
+  if(a.side===b.side) return false;
+  if(a.attacked) return false;
+  if(a.atk === 0) return false;
+  return isAdjacent(a.state, b.state);
+}
+
+function moveUnit(u, targetState){
+  u.state = targetState;
+  u.moved = true;
+  control[targetState] = u.side;
+  log(`<b>${sideName(u.side)}</b> ${u.name} 推进至 ${targetState}`);
+  deselect();
+}
+
+async function attack(a, b){
+  return new Promise(resolve => {
+    const from = stateCenter[a.state];
+    const to = stateCenter[b.state];
+    const tx = from.x + (to.x - from.x) * 0.75;
+    const ty = from.y + (to.y - from.y) * 0.75;
+    const startTime = performance.now();
+    const duration = 380;
+    let impacted = false;
+
+    function step(now){
+      const p = Math.min(1, (now - startTime) / duration);
+      const eased = 1 - Math.pow(1 - p, 2.5);
+
+      state.attackAnim = {
+        unitId: a.id,
+        x: from.x + (tx - from.x) * eased,
+        y: from.y + (ty - from.y) * eased,
+        scale: 1 + 0.22 * Math.sin(p * Math.PI)
+      };
+
+      if(p > 0.6 && !impacted){
+        impacted = true;
+        state.hitFlash = { unitId: b.id, t: 1 };
+
+        const aPow = a.atk * (a.hp/a.maxHp) * (0.75 + Math.random()*0.5);
+        const dPow = effectiveDef(b) * (b.hp/b.maxHp) * (0.75 + Math.random()*0.5);
+        const ratio = aPow / Math.max(1, dPow);
+        const dmgDef = Math.max(1, Math.min(b.hp, Math.round(ratio * 2.5)));
+        const dmgAtk = Math.max(0, Math.min(a.hp-1, Math.round(1.6 / Math.max(0.3, ratio))));
+        b.hp -= dmgDef;
+        a.hp -= dmgAtk;
+
+        let txt = `<b>${sideName(a.side)}</b> ${a.name} → ${b.name}　敌损 ${dmgDef}`;
+        if(dmgAtk) txt += `，己损 ${dmgAtk}`;
+        if(b.hp <= 0){ removeUnit(b); control[b.state] = a.side; txt += `　<span style="color:#f87171">【歼灭】</span>`; }
+        if(a.hp <= 0){ removeUnit(a); txt += `　<span style="color:#f87171">【攻击方覆灭】</span>`; }
+        log(txt);
+      }
+
+      if(state.hitFlash) state.hitFlash.t = Math.max(0, state.hitFlash.t - 0.08);
+      render();
+
+      if(p < 1){ requestAnimationFrame(step); }
+      else {
+        setTimeout(()=>{
+          state.attackAnim = null;
+          state.hitFlash = null;
+          render();
+          resolve();
+        }, 100);
+      }
+    }
+    requestAnimationFrame(step);
+  }).then(() => {
+    a.attacked = true;
+    a.moved = true;
+    deselect();
+  });
+}
+
+function removeUnit(u){
+  const i = state.units.indexOf(u);
+  if(i>=0) state.units.splice(i,1);
+  if(state.selected===u) state.selected = null;
+}
+
+function select(u){ state.selected = u; state.reachable = computeReachable(u); tipClosed = false; render(); }
+function deselect(){ state.selected = null; state.reachable = new Set(); render(); }
+
+function tryFortify(sName){
+  if(gameOver) return;
+  if(state.side !== playerSide) return;
+  if(fortPoints[playerSide] <= 0){ log('工事点不足。'); return; }
+  if(control[sName] !== playerSide){ log('只能在本方控制的州修建工事。'); return; }
+  const lv = fortifications[sName] || 0;
+  if(lv >= 2){ log(`${sName} 工事已达最高等级。`); return; }
+  fortifications[sName] = lv + 1;
+  fortPoints[playerSide]--;
+  log(`<b>${sideName(playerSide)}</b> 在 ${sName} 修建工事（等级 ${lv+1}）`);
+  render();
+}
+
+function enableNukeMode(){
+  if(gameOver) return;
+  if(!nukeUnlocked) return;
+  if(nukeStock[playerSide] <= 0){ log('核打击次数已用尽。'); return; }
+  if(state.side !== playerSide){ log('只能在你的回合使用核打击。'); return; }
+  mode = (mode==='nuke') ? 'normal' : 'nuke';
+  deselect(); render(); updateUI();
+}
+
+function tryNuke(sName){
+  if(gameOver) return;
+  if(nukeStock[playerSide] <= 0) return;
+  if(state.side !== playerSide) return;
+  const target = unitAt(sName);
+  nukeStock[playerSide]--;
+  nukesUsed[playerSide]++;
+  mode = 'normal';
+  log(`<b style="color:#f97316">☢ 核打击！</b> ${sideName(playerSide)} 对 ${sName} 实施战术核打击`);
+  if(target){
+    target.atk = 0; target.def = 2; target.nuked = true;
+    log(`　${target.name} 攻击力归零，防御力降至 2。`);
+  } else {
+    log(`　该区域无部队，打击落空。`);
+  }
+  if(nukesUsed[playerSide] >= 3){
+    log('<b style="color:#fbbf24">☢ 核打击额度用尽 —— 双方被迫走向谈判桌。</b>');
+    endGame('draw', '战术核打击已使用 3 次，双方被迫和谈');
+    return;
+  }
+  render();
+}
+
+/* =========================================================
+   拖放操作
+   ========================================================= */
+let dragStartState = null;
+let isDragging = false;
+
+function getStateFromEvent(e){
+  const rect = canvas.getBoundingClientRect();
+  let clientX, clientY;
+  if(e.touches && e.touches.length > 0){ clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
+  else if(e.changedTouches && e.changedTouches.length > 0){ clientX = e.changedTouches[0].clientX; clientY = e.changedTouches[0].clientY; }
+  else { clientX = e.clientX; clientY = e.clientY; }
+  const mx = (clientX - rect.left) * (W / rect.width);
+  const my = (clientY - rect.top)  * (H / rect.height);
+  return stateAt(mx, my);
+}
+
+function handlePointerStart(e){
+  if(gameOver || state.side !== playerSide) return;
+  const sName = getStateFromEvent(e);
+  if(!sName) return;
+  dragStartState = sName;
+  isDragging = true;
+  if(e.type === 'touchstart') e.preventDefault();
+}
+
+function handlePointerEnd(e){
+  if(!isDragging) return;
+  isDragging = false;
+  if(gameOver || state.side !== playerSide) return;
+  const sName = getStateFromEvent(e);
+  if(!sName){ dragStartState = null; return; }
+
+  if(mode === 'fortify'){ tryFortify(sName); dragStartState = null; return; }
+  if(mode === 'nuke'){ tryNuke(sName); dragStartState = null; return; }
+
+  if(sName === dragStartState){
+    normalClick(sName);
+  } else {
+    const startUnit = unitAt(dragStartState);
+    if(startUnit && startUnit.side === playerSide){
+      const endUnit = unitAt(sName);
+      if(endUnit && endUnit.side !== playerSide){
+        if(canAttack(startUnit, endUnit)) attack(startUnit, endUnit);
+        else { deselect(); log('无法攻击该目标（不相邻或已行动）'); }
+      } else if(!endUnit && state.reachable.has(sName)){
+        moveUnit(startUnit, sName);
+      } else {
+        deselect();
+      }
+    } else {
+      normalClick(sName);
+    }
+  }
+  dragStartState = null;
+}
+
+canvas.addEventListener('mousedown', handlePointerStart);
+canvas.addEventListener('mouseup', handlePointerEnd);
+canvas.addEventListener('touchstart', handlePointerStart, { passive: false });
+canvas.addEventListener('touchend', handlePointerEnd);
+
+function normalClick(sName){
+  const target = unitAt(sName);
+  const sel = state.selected;
+  if(sel){
+    if(target === sel){ deselect(); return; }
+    if(target && target.side===state.side){ select(target); return; }
+    if(target && target.side!==state.side){
+      if(canAttack(sel,target)){ attack(sel,target); return; }
+    }
+    if(state.reachable.has(sName)){ moveUnit(sel,sName); return; }
+    deselect(); return;
+  }
+  if(target && target.side===state.side) select(target);
+}
+
+const tipEl = document.getElementById('tip');
+const tipContent = document.getElementById('tip-content');
+const tipClose = document.getElementById('tip-close');
+
+tipClose.addEventListener('click', (e)=>{
+  e.stopPropagation();
+  tipClosed = true;
+  tipEl.classList.remove('on');
+});
+
+canvas.addEventListener('mousemove', e=>{
+  if(tipClosed) return;
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX-rect.left) * (W/rect.width);
+  const my = (e.clientY-rect.top)  * (H/rect.height);
+  const sName = stateAt(mx,my);
+  const u = sName ? unitAt(sName) : null;
+  if(u){
+    const st = UNIT_STATS[u.type];
+    const fort = fortifications[u.state] || 0;
+    tipContent.innerHTML =
+      `<div class="n" style="color:${u.side==='nato'?'#8fc0ff':'#ff9c9c'}">${u.name}</div>` +
+      `${sideName(u.side)} · ${st.name}<br>` +
+      `⚔ 攻击 <b style="color:#f87171">${u.atk}</b>　🛡 防御 <b style="color:#93c5fd">${u.def}</b>` +
+      (fort?` <span style="color:#93c5fd">(+${fort*50}%工事)</span>`:'') + `<br>` +
+      `兵力 ${u.hp}/${u.maxHp}<br>` +
+      `<span style="opacity:.6">部署地：${u.state}</span>` +
+      (u.nuked?'<br><span style="color:#f97316">☢ 已遭核打击</span>':'');
+    tipEl.style.left = (e.clientX+16)+'px';
+    tipEl.style.top  = (e.clientY+16)+'px';
+    tipEl.classList.add('on');
+  } else {
+    tipEl.classList.remove('on');
+  }
+});
+
+canvas.addEventListener('mouseleave', ()=>{ tipEl.classList.remove('on'); });
+
+function startTurn(side){
+  if(gameOver) return;
+  state.side = side;
+  deselect();
+  mode = 'normal';
+  tipClosed = false;
+  state.units.forEach(u=>{ if(u.side===side){ u.moved=false; u.attacked=false; } });
+  fortPoints[side] = 2;
+
+  if(state.turn >= 40 && !nukeUnlocked){
+    nukeUnlocked = true;
+    log('<b style="color:#fbbf24">⚠ 第 40 回合 —— 「战术与打击」已解锁。</b>');
+    log('任意一方按下该按钮，双方将各获得 3 次核打击。');
+  }
+
+  spawnReinforcements(side);
+  render();
+  const isPlayer = (side === playerSide);
+  setEndBtnEnabled(isPlayer);
+  if(!isPlayer){
+    log(`<b>${sideName(side)}</b> 正在行动...`);
+    setTimeout(aiTurn, 1000);
+  } else {
+    log(`<b>${sideName(side)}</b> 你的回合 —— 请下达命令`);
+  }
+}
+
+function setEndBtnEnabled(on){ document.getElementById('end-turn').disabled = !on; }
+
+function spawnReinforcements(side){
+  const list = REINFORCEMENTS[side].filter(r => r.turn === state.turn && !r.spawned);
+  list.forEach(item=>{
+    const spot = findSpawn(side);
+    if(!spot) return;
+    item.spawned = true;
+    const st = UNIT_STATS[item.type];
+    state.units.push({
+      id:++uid, side, type:item.type, name:item.name,
+      state:spot, hp:st.hp, maxHp:st.hp,
+      atk:st.atk, def:st.def, nuked:false,
+      moved:false, attacked:false
+    });
+    control[spot] = side;
+    log(`<b>${sideName(side)}</b> 增援抵达：${item.name}（${spot}）`);
+  });
+}
+
+function findSpawn(side){
+  const own = stateList.filter(s => control[s]===side && !unitAt(s));
+  if(own.length) return own[Math.floor(Math.random()*own.length)];
+  const any = stateList.filter(s => !unitAt(s));
+  return any.length ? any[0] : null;
+}
+
+function endTurn(){
+  if(gameOver) return;
+  if(!checkVictory()) return;
+  if(state.side === 'nato'){ startTurn('warsaw'); }
+  else { state.turn++; startTurn('nato'); }
+}
+
+document.getElementById('end-turn').addEventListener('click', ()=>{
+  if(state.side !== playerSide) return;
+  endTurn();
+});
+
+document.getElementById('reset').addEventListener('click', ()=>{
+  document.getElementById('start-screen').classList.remove('hide');
+  document.getElementById('end-screen').classList.remove('show');
+});
+
+document.getElementById('fort-btn').addEventListener('click', ()=>{
+  if(gameOver) return;
+  if(state.side !== playerSide) return;
+  if(fortPoints[playerSide] <= 0) { log('工事点不足。'); return; }
+  mode = (mode==='fortify') ? 'normal' : 'fortify';
+  deselect(); render(); updateUI();
+});
+
+document.getElementById('nuke-btn').addEventListener('click', ()=>{
+  if(gameOver) return;
+  if(state.side !== playerSide) return;
+  if(nukeUnlocked && nukeStock.nato===0 && nukeStock.warsaw===0 && nukesUsed.nato===0 && nukesUsed.warsaw===0){
+    nukeStock.nato = 3; nukeStock.warsaw = 3;
+    log('<b style="color:#f97316">☢ 双方按下红色按钮 —— 战术核打击进入待命状态。</b>');
+    log('双方各获得 3 次核打击。任意一方用满 3 次即触发和谈平局。');
+    render(); updateUI();
+    return;
+  }
+  enableNukeMode();
+});
+
+function checkVictory(){
+  const natoHome   = stateList.filter(s => STATE_SIDE[s]==='nato');
+  const warsawHome = stateList.filter(s => STATE_SIDE[s]==='warsaw');
+  const natoLost   = natoHome.filter(s => control[s]==='warsaw').length;
+  const warsawLost = warsawHome.filter(s => control[s]==='nato').length;
+
+  const natoCitiesLost   = NATO_CITIES.every(c => control[c.state]==='warsaw');
+  const warsawCitiesLost = WARSAW_CITIES.every(c => control[c.state]==='nato');
+
+  if(natoCitiesLost){ endGame('warsaw', '西德全部主要城市沦陷 —— 北约防线崩溃'); return false; }
+  if(warsawCitiesLost){ endGame('nato', '东德全部主要城市沦陷 —— 华约攻势瓦解'); return false; }
+  if(natoLost / natoHome.length >= 0.95){ endGame('warsaw', '华约占领北约 95% 领土 —— 红旗插上莱茵河'); return false; }
+  if(warsawLost / warsawHome.length >= 0.95){ endGame('nato', '北约推进至华约 95% 领土 —— 铁幕被彻底撕开'); return false; }
+  if(state.turn > 60){
+    endGame('nato', `第 60 回合结束。华约仅占领北约 ${(natoLost/natoHome.length*100).toFixed(0)}% 领土，未能达成战略目标 —— 北约守住欧洲`);
+    return false;
+  }
+  return true;
+}
+
+function endGame(winner, desc){
+  gameOver = true;
+  mode = 'normal';
+  const title = document.getElementById('end-title');
+  const box   = document.getElementById('end-desc');
+  if(winner==='nato'){ title.textContent = '北约胜利'; title.style.color = '#60a5fa'; title.style.textShadow = '0 0 40px rgba(96,165,250,.8)'; }
+  else if(winner==='warsaw'){ title.textContent = '华约胜利'; title.style.color = '#f87171'; title.style.textShadow = '0 0 40px rgba(248,113,113,.8)'; }
+  else { title.textContent = '和谈平局'; title.style.color = '#fbbf24'; title.style.textShadow = '0 0 40px rgba(251,191,36,.8)'; }
+  box.textContent = desc;
+  document.getElementById('end-screen').classList.add('show');
+  log(`<b style="color:#fbbf24">【游戏结束】${title.textContent} —— ${desc}</b>`);
+}
+
+async function aiTurn(){
+  if(gameOver) return;
+  const aiSide = state.side;
+  aiFortify(aiSide);
+  await sleep(250);
+  if(gameOver) return;
+  if(nukeUnlocked && nukeStock[aiSide] > 0){
+    await aiConsiderNuke(aiSide);
+    if(gameOver) return;
+  }
+  const units = [...state.units].filter(u => u.side === aiSide);
+  const ordered = planOffensive(units, aiSide);
+  for(const u of ordered){
+    if(gameOver) return;
+    if(!state.units.includes(u)) continue;
+    if(state.side !== aiSide) return;
+    await sleep(300);
+    const enemies = state.units.filter(e => e.side !== aiSide && canAttack(u, e));
+    if(enemies.length){ await attack(u, chooseTarget(u, enemies)); continue; }
+    if(u.moved) continue;
+    const reach = computeReachable(u);
+    if(reach.size === 0) continue;
+    const best = chooseMove(u, reach, aiSide);
+    if(best) moveUnit(u, best);
+  }
+  await sleep(450);
+  if(!gameOver && state.side === aiSide) endTurn();
+}
+
+function planOffensive(units, side){
+  return [...units].sort((a,b)=>{
+    const wa = a.atk*2 + a.hp + (a.type==='armor'?10:0);
+    const wb = b.atk*2 + b.hp + (b.type==='armor'?10:0);
+    return wb - wa;
+  });
+}
+
+function chooseTarget(attacker, enemies){
+  let best = null, bestScore = -Infinity;
+  for(const e of enemies){
+    let score = 0;
+    const aPow = attacker.atk * (attacker.hp/attacker.maxHp);
+    const eDef = effectiveDef(e) * (e.hp/e.maxHp);
+    const expectDmg = Math.max(1, Math.round((aPow/Math.max(1,eDef)) * 2.5));
+    if(expectDmg >= e.hp) score += 100;
+    if(e.type==='armor')  score += 30;
+    if(e.type==='air')    score += 20;
+    score += (e.maxHp - e.hp) * 6;
+    score += e.atk * 0.8;
+    if(control[e.state]===attacker.side) score += 15;
+    if(score > bestScore){ bestScore = score; best = e; }
+  }
+  return best;
+}
+
+function chooseMove(u, reach, side){
+  let best = null, bestScore = -Infinity;
+  const enemySide = side==='nato' ? 'warsaw' : 'nato';
+  for(const s of reach){
+    const c = stateCenter[s];
+    let score = 0;
+    let minD = Infinity;
+    state.units.forEach(e=>{
+      if(e.side === side) return;
+      const ec = stateCenter[e.state];
+      const d = Math.hypot(c.x-ec.x, c.y-ec.y);
+      if(d < minD) minD = d;
+    });
+    if(isFinite(minD)) score += (200 - minD);
+    if(control[s] !== side) score += 80;
+    if(control[s] === enemySide) score += 60;
+    [...NATO_CITIES, ...WARSAW_CITIES].forEach(city=>{
+      if(city.state === s && control[s] !== side) score += 70;
+    });
+    if(u.type==='armor') score += 5;
+    score += Math.random()*25;
+    if(score > bestScore){ bestScore = score; best = s; }
+  }
+  return best;
+}
+
+function aiFortify(side){
+  let pts = fortPoints[side];
+  if(pts <= 0) return;
+  const own = stateList.filter(s => control[s]===side && (fortifications[s]||0) < 2);
+  if(!own.length) return;
+  const threats = own.map(s=>{
+    const c = stateCenter[s];
+    let threat = 0;
+    state.units.forEach(e=>{
+      if(e.side === side) return;
+      if(!isAdjacent(e.state, s)) return;
+      threat += e.atk * (e.hp/e.maxHp);
+    });
+    const isCity = [...NATO_CITIES,...WARSAW_CITIES].some(city=>city.state===s);
+    if(isCity) threat += 40;
+    return { s, threat };
+  }).sort((a,b)=>b.threat - a.threat);
+  for(const t of threats){
+    if(pts <= 0) break;
+    if(t.threat <= 0) break;
+    fortifications[t.s] = (fortifications[t.s]||0) + 1;
+    pts--;
+    log(`<b>${sideName(side)}</b> 在 ${t.s} 加固防御工事`);
+  }
+  fortPoints[side] = pts;
+}
+
+async function aiConsiderNuke(side){
+  const targets = state.units.filter(u => u.side !== side && !u.nuked);
+  if(!targets.length) return;
+  const scored = targets.map(t=>{
+    let v = t.atk * 1.5 + t.hp * 2;
+    const isCity = [...NATO_CITIES, ...WARSAW_CITIES].some(c=>c.state===t.state);
+    if(isCity) v += 30;
+    if(t.type==='armor') v += 20;
+    return { t, v };
+  }).sort((a,b)=>b.v - a.v);
+  if(scored[0].v < 55) return;
+  const target = scored[0].t;
+  nukeStock[side]--;
+  nukesUsed[side]++;
+  target.atk = 0; target.def = 2; target.nuked = true;
+  log(`<b style="color:#f97316">☢ 核打击！</b> ${sideName(side)} 对 ${target.state} 实施战术核打击（${target.name}）`);
+  if(nukesUsed[side] >= 3){
+    log('<b style="color:#fbbf24">☢ 核打击额度用尽 —— 双方被迫走向谈判桌。</b>');
+    endGame('draw', '战术核打击已使用 3 次，双方被迫和谈');
+    return;
+  }
+  render();
+  await sleep(400);
+}
+
+function log(html){
+  const el = document.getElementById('log');
+  const line = document.createElement('div');
+  line.innerHTML = `▸ ${html}`;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+function updateUI(){
+  if(!state) return;
+  document.getElementById('turn-label').textContent = `回合 ${state.turn} / 60`;
+  const isPlayer = (state.side === playerSide);
+  const badge = document.getElementById('side-badge');
+  badge.textContent = isPlayer ? `${sideName(state.side)} · 你的回合` : `${sideName(state.side)} · 敌方行动`;
+  badge.className = 'badge ' + state.side;
+
+  document.getElementById('nato-fortp').textContent = fortPoints.nato;
+  document.getElementById('warsaw-fortp').textContent = fortPoints.warsaw;
+
+  const fmtNuke = (side)=>{
+    if(!nukeUnlocked) return '未解锁';
+    if(nukeStock[side]===0 && nukesUsed[side]===0) return '待命';
+    return `${nukeStock[side]} / 3`;
+  };
+  document.getElementById('nato-nuke').textContent = fmtNuke('nato');
+  document.getElementById('warsaw-nuke').textContent = fmtNuke('warsaw');
+
+  const fbtn = document.getElementById('fort-btn');
+  fbtn.textContent = `修建工事 (${fortPoints[playerSide]})`;
+  fbtn.disabled = !isPlayer || fortPoints[playerSide] <= 0 || gameOver;
+  fbtn.style.outline = (mode==='fortify') ? '2px solid #93c5fd' : 'none';
+  fbtn.style.outlineOffset = '2px';
+
+  const nbtn = document.getElementById('nuke-btn');
+  const nukeReady = nukeUnlocked && !gameOver;
+  nbtn.disabled = !nukeReady || !isPlayer;
+  if(!nukeUnlocked) nbtn.textContent = '战术与打击';
+  else if(nukeStock.nato===0 && nukeStock.warsaw===0 && nukesUsed.nato===0 && nukesUsed.warsaw===0)
+    nbtn.textContent = '按下核按钮';
+  else nbtn.textContent = `核打击 (${nukeStock[playerSide]})`;
+  nbtn.style.outline = (mode==='nuke') ? '3px solid #fbbf24' : 'none';
+  nbtn.style.outlineOffset = '3px';
+
+  ['nato','warsaw'].forEach(side=>{
+    const units = state.units.filter(u=>u.side===side);
+    const army = units.filter(u=>u.type!=='air').length;
+    const air  = units.filter(u=>u.type==='air').length;
+    let terr = 0;
+    stateList.forEach(s=>{ if(control[s]===side) terr++; });
+    document.getElementById(side+'-army').textContent = army;
+    document.getElementById(side+'-air').textContent  = air;
+    document.getElementById(side+'-terr').textContent = terr + ' / ' + stateList.length;
+    document.getElementById(side+'-bar').style.width = (terr/stateList.length*100).toFixed(0)+'%';
+  });
+
+  ['nato','warsaw'].forEach(side=>{
+    const el = document.getElementById(side+'-reinf');
+    if(!el) return;
+    el.innerHTML = '';
+    REINFORCEMENTS[side].forEach(r=>{
+      const li = document.createElement('li');
+      const ready = !r.spawned && r.turn <= state.turn + 1;
+      li.className = (r.spawned ? 'done' : '') + (ready ? ' ready' : '');
+      li.innerHTML = `<span>${r.name}</span><span class="t">T${r.turn}</span>`;
+      el.appendChild(li);
+    });
+  });
+}
+</script>
+</body>
+</html>
